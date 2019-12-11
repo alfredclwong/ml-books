@@ -31,3 +31,13 @@ if __name__ == '__main__':
 
     n_correct = np.sum(test_labels == pred_labels)
     print(f'{n_correct/n_test*100:.2f}%')
+
+    n_folds = 5
+    n_correct = 0
+    for i in tqdm(range(n_folds)):
+        val_idxs = np.zeros(n_train, dtype=np.bool)
+        val_idxs[i * n_train // n_folds: (i+1) * n_train // n_folds] = 1
+        train_idxs = np.invert(val_idxs)
+        pred_labels = knn(1, train_data[train_idxs], train_labels[train_idxs], train_data[val_idxs])
+        n_correct += np.sum(train_labels[val_idxs] == pred_labels)
+    print(f'{n_correct/n_train*100:.2f}')
