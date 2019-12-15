@@ -1,0 +1,93 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\begin{document}
+\section{Introduction}
+\subsection{1NN}
+Takes about 19:47 minutes to run on my computer and achieves a test set accuracy of 96.61\%.
+\subsection{FLANN}
+Cool idea. [TODO]
+\subsection{LOOCV}
+5-fold leave one out cross validation predicts 96.94\% accuracy. Takes 1:30:45 hours to run in total.
+\section{Probability}
+\subsection{Boys \& girls}
+(Source: Minka). My neighbour has two children. Suppose I ask him whether he has any boys, and he says yes. What is the probability that one child is a girl?
+\begin{align*}
+\mathbb{P}(BG \lor GB | BB \lor BG \lor GB) &= \frac{\mathbb{P}((BG \lor GB) \land (BB \lor BG \lor GB))}{\mathbb{P}(BB \lor BG \lor GB)}\\
+&= \frac{\mathbb{P}(BG \lor GB)}{\mathbb{P}(BB \lor BG \lor GB)}\\
+&= \frac{2}{3}
+\end{align*}
+
+This result is sort of interesting because without the condition, the probability that one child is a girl is only $\frac{1}{2}$. It is not immediately obvious that knowing there is at least one boy would increase the probability, but this works because it cuts out the GG case, where there is not exactly one girl.
+
+Suppose instead that I happen to see one of his children run by, and it is a boy. What is the probability that the other child is a girl?
+
+Without loss of generality, we can assume that we saw child 1 (otherwise the events are flipped but the probabilities remain the same). Thus
+\begin{gather*}
+\mathbb{P}(BG | BB \lor BG) = \frac{\mathbb{P}(BG \land (BB \lor BG))}{\mathbb{P}(BB \lor BG)} = \frac{\mathbb{P}(BG)}{\mathbb{P}(BB \lor BG)} = \frac{1}{2}
+\end{gather*}
+
+In this case, observing one child does not have any bearing on the gender of the other, whereas earlier we were given information that affected both children.
+
+(Bonus question). The much more interesting variant of this question is when we are given that one of the children is a boy, born on a Tuesday. Now, what is the probability of both children being boys?
+
+\subsection{Legal reasoning}
+(Source: Peter Lee). Suppose a crime has been committed. Blood is found at the scene for which there is no innocent explanation. It is of a type which is present in 1\% of the population. [Not stated, but I would guess that the defendant also has this blood type.]
+
+The prosecutor claims: ``There is a 1\% chance that the defendant would have the crime blood type if he were innocent. Thus there is a 99\% chance that he is guilty."
+
+The defender claims: ``The crime occurred in a city of 800,000 people. The blood type would be found in approximately 8000 people. The evidence has provided a probability of just 1 in 8000 that the defendant is guilty, and thus has no relevance."
+
+The prosecutor's argument assumes that $\mathbb{P}(A|B) + \mathbb{P}(\neg B|A) = 1$, where $A$ is having the crime blood type and $B$ is being innocent. While it is true that $\mathbb{P}(A|B)=1\%$, the rest of the statement is clearly not true in general.
+
+The defender's argument begins with the assertion of some value for $\mathbb{P}(\neg B)$. Assuming that the criminal's blood type will match the crime scene, i.e. $\mathbb{P}(A|\neg B) = 1$, it is certainly true that $\mathbb{P}(\neg B|A) = \mathbb{P}(\neg B)/\mathbb{P}(A)$. However, this relies on the assertion that the defendant has been selected at random from the population. Since this is probably not the case, we are in fact interested in the probability $\mathbb{P}(\neg B|A \land D) = \mathbb{P}(\neg B| D)/\mathbb{P}(A|D)$, where $D$ is being a defendant in the trial. If other incriminating evidence (sans blood testing) has been brought forward, it is likely that $\mathbb{P}(\neg B|D) > \mathbb{P}(\neg B)$ and $\mathbb{P}(A|D) \approx \mathbb{P}(A)$, and so $\mathbb{P}(\neg B|A \land D) > \mathbb{P}(\neg B|A)$. Thus the blood test has a \textbf{compounding} effect.
+
+\subsection{Variance of a sum}
+Suppose $X$ and $Y$ are random variables with means $\mu_X$ and $\mu_Y$, respectively, and variances $\sigma_X^2$ and $\sigma_Y^2$, also respectively. Also, let $Z = X + Y$. Then
+\begin{align*}
+\sigma_Z^2 &= \mathbb{E}[Z^2] - \mu_Z^2\\
+&= \mathbb{E}[X^2 + Y^2 + 2XY] - (\mu_X^2 + \mu_Y^2 + 2\mu_X\mu_Y)\\
+&= \mathbb{E}[X^2] - \mu_X^2 + \mathbb{E}[Y^2] - \mu_Y^2 + 2(\mathbb{E}[XY] - \mu_X\mu_Y)\\
+&= \sigma_X^2 + \sigma_Y^2 - 2\sigma_{XY}
+\end{align*}
+where the steps either use the definitions of variance and mean, linearity of expectation, or just plain old substitution.
+
+\subsection{Medical diagnosis}
+(Source: Koller).
+\begin{align*}
+\mathbb{P}(\mathrm{disease}|\mathrm{positive}) &= \frac{\mathbb{P}(\mathrm{positive}|\mathrm{disease}) \mathbb{P}(\mathrm{disease})}{\mathbb{P}(\mathrm{positive})}\\
+&= \frac{(99\%)(0.01\%)}{(99\%)(0.01\%)+(1\%)(99.99\%)}\\ &= 0.98\%
+\end{align*}
+
+\subsection{Monty Hall problem}
+(Source: Mackay).
+\begin{gather*}
+\mathbb{P}(1) = \frac{1}{3}\\
+\mathbb{P}(2|\neg 3) = \frac{\mathbb{P}(\neg 3|2)\mathbb{P}(2)}{\mathbb{P}(\neg 3)} = \frac{(1)(1/3)}{2/3} = \frac{1}{2}
+\end{gather*}
+
+To be honest, I prefer the more intuitive argument that the first pick was a choice between three options, whereas the second pick, if changed, would be a choice between two options.
+
+\subsection{Conditional independence}
+\begin{gather*}
+\mathbb{P}(H=k|E_1=e_1,E_2=e_2) = \frac{\mathbb{P}(E_1=e_1,E_2=e_2|H=k)\mathbb{P}(H=k)}{\mathbb{P}(E_1=e_1,E_2=e_2)}
+\end{gather*}
+
+So, set ii. is sufficient for the calculation. If $E_1 \perp E_2|H$, then we can break down the term
+\begin{gather*}
+\mathbb{P}(E_1=e_1,E_2=e_2|H=k) = \mathbb{P}(E_1=e_1|H=k)\mathbb{P}(E_2=e_2|H=k)
+\end{gather*}
+and so set i. is also sufficient. Furthermore, we can calculate the joint probability for $E_1$ and $E_2$ by marginalising over $H$ to get
+\begin{align*}
+\mathbb{P}(E_1=e_1,E_2=e_2) &= \sum_{i=1}^{K} \mathbb{P}(E_1=e_1,E_2=e_2|H=i)\mathbb{P}(H=i)\\
+&= \sum_{i=1}^{K} \mathbb{P}(E_1=e_1|H=i)\mathbb{P}(E_2=e_2|H=i)\mathbb{P}(H=i)
+\end{align*}
+and so all three sets actually suffice for the calculation.
+
+\subsection{Pairwise independence does not imply mutual independence}
+Suppose $A$, $B$, $C$ are pairwise independent random variables. A necessary condition for mutual independence is that $\mathbb{P}(A|B,C) = \mathbb{P}(A)$, but for this to be true it would imply that
+\begin{gather*}
+\mathbb{P}(A|B,C) = \frac{\mathbb{P}(B,C|A)\mathbb{P}(A)}{\mathbb{P}(B,C)} = \mathbb{P}(A)
+\end{gather*}
+and so $\mathbb{P}(B,C|A) = \mathbb{P}(B,C)$. Therefore, a counterexample would have $B$ and $C$ not independent given $A$. A simple example of this is if $B$ and $C$ are independent coin flips and $A$ is whether or not they land on the same side as each other.
+\end{document}
