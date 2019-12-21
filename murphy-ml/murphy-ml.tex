@@ -1,5 +1,6 @@
 \documentclass{article}
-\usepackage{amsmath, amssymb}
+\usepackage{amsmath, amssymb, amsthm}
+\mathchardef\mhyphen="2D
 
 \begin{document}
 \section{Introduction}
@@ -69,6 +70,7 @@ where the steps either use the definitions of variance and mean, linearity of ex
 To be honest, I prefer the more intuitive argument that the first pick was a choice between three options, whereas the second pick, if changed, would be a choice between two options.
 
 \subsection{Conditional independence}
+(Source: Koller).
 \begin{gather*}
 \mathbb{P}(H=k|E_1=e_1,E_2=e_2) = \frac{\mathbb{P}(E_1=e_1,E_2=e_2|H=k)\mathbb{P}(H=k)}{\mathbb{P}(E_1=e_1,E_2=e_2)}
 \end{gather*}
@@ -90,4 +92,147 @@ Suppose $A$, $B$, $C$ are pairwise independent random variables. A necessary con
 \mathbb{P}(A|B,C) = \frac{\mathbb{P}(B,C|A)\mathbb{P}(A)}{\mathbb{P}(B,C)} = \mathbb{P}(A)
 \end{gather*}
 and so $\mathbb{P}(B,C|A) = \mathbb{P}(B,C)$. Therefore, a counterexample would have $B$ and $C$ not independent given $A$. A simple example of this is if $B$ and $C$ are independent coin flips and $A$ is whether or not they land on the same side as each other.
+
+\subsection{Conditional independence iff joint factorises}
+We have conditional independence $X \perp Y | Z$ iff $p(x,y|z) = p(x|z)p(y|z)$. We now show that this holds iff we can factorise the joint as $p(x,y|z) = g(x,z)h(y,z)$ for some functions $g$ and $h$.
+
+$(\implies).$ Suppose $p(x,y|z) = p(x|z)p(y|z)$. Let $g(x,z) = p(x|z)$ and let $h(y,z) = p(y|z)$. Done.
+
+$(\impliedby).$ Suppose $p(x,y|z) = g(x,z)h(y,z)$. Then we can marginalise out $y$, say, as follows: $p(x|z) = \int p(x,y|z) dy = \int g(x,z)h(y,z) dy = g(x,z) \cdot \int h(y,z) dy$. Similarly for $x$, we have $p(y|z) = \int g(x,z) dx \cdot h(y,z)$, and so $p(x|z)p(y|z) \propto g(x,z)h(y,z) = p(x,y|z)$, since $z$ is given (constant).
+
+\subsection{Conditional independence}
+(Source: Koller).
+
+\textbf{True.} Suppose $(X \perp W|Z,Y) \land (X \perp Y|Z)$. Then \begin{align*}
+p(x,w,y|z) &= p(x|z)p(w,y|x,z) \tag{chain rule}\\
+&= p(x|z)p(w|x,y,z)p(y|x,z) \tag{chain rule}\\
+&= p(x|z)p(w|y,z)p(y|z) \tag{conditional independence}\\
+&= p(x|z)p(w,y|z).
+\end{align*}
+Hence $(X \perp W|Z,Y) \land (X \perp Y|Z) \implies (X \perp Y,W|Z)$.
+
+\textbf{True.} Unless I'm mistaken, we can prove a stronger result. Suppose $(X \perp Y|Z) \lor (X \perp Y|W)$. Then
+we can factorise $p(x,y|z,w)$ as either $g_z(x,z)h_z(y,z)$ or $g_w(x,w)h_w(y,w)$, depending on which factorisation is available, and so $(X \perp Y|Z) \lor (X \perp Y|W) \lor (X \perp Y|Z,W)$.
+
+\subsection{Deriving the inverse gamma density}
+Suppose $X \sim \mathrm{Gamma(a,b)}$, so $p_X(x) = \frac{b^a}{\Gamma(a)} x^{a-1} \exp^{-xb}$. If $Y=1/X$, then
+\begin{align*}
+p_Y(y) &= p_X(y^{-1})\left|\frac{d}{dy}(y^{-1})\right|\\
+&= \frac{b^a}{\Gamma(a)} y^{-a+1} \exp^{-b/y} y^{-2}\\
+&= \frac{b^a}{\Gamma(a)} y^{-a-1} \exp^{-b/y}
+\end{align*}
+and so $Y \sim \mathrm{Inv \mhyphen Gamma}(a,b)$.
+
+\subsection{Normalisation constant for a 1D Gaussian}
+\begin{align*}
+Z^2 &= \int_{0}^{2\pi} \int_{0}^{\infty} r \exp\left(-\frac{r^2}{2\sigma^2}\right) \,dr \,d\theta\\
+&= 2\pi \left[-\sigma^2 \exp\left(-\frac{r^2}{2\sigma^2}\right) \right]_{0}^{\infty}\\
+&= 2\pi\sigma^2.
+\end{align*}
+
+\subsection{Expressing mutual information in terms of entropies}
+Recall the relevant definitions for entropy $H(X)$, conditional entropy $H(X|Y)$ and mutual information $I(X,Y)$.
+\begin{align*}
+H(X) &= -\sum_x p(x) \log p(x)\\
+H(X|Y) &= -\sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
+I(X,Y) &= \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(x)p(y)}\\
+&= \sum_x \sum_y p(x,y) \left( -\log{p(x)} + \log\frac{p(x,y)}{p(y)} \right)\\
+&= -\sum_x \sum_y p(x,y)\log{p(x)} + \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
+&= -\sum_x p(x)\log{p(x)} - H(X|Y)\\
+&= H(X) - H(X|Y).
+\end{align*}
+Similarly, $I(X,Y) = H(Y) - H(Y|X)$.
+
+\subsection{Mutual information for correlated normals}
+(Source: (Cover and Thomas 1991, Q9.3)). Let $\mathbf{X}$ be a random vector with a bivariate normal distribution
+\begin{equation*}
+\begin{bmatrix}X_1\\X_2\end{bmatrix} \sim \mathcal{N}\left(\mathbf{0}, \begin{bmatrix}\sigma^2&\rho\sigma^2\\\rho\sigma^2&\sigma^2\end{bmatrix}\right).
+\end{equation*}
+Then the mutual information
+\begin{align*}
+I(X_1, X_2) &= \mathbb{E}_{\mathbf{X}}\left[ \log\frac{p(\mathbf{x})}{p(x_1)p(x_2)} \right]\\
+&= \mathbb{E}_{\mathbf{X}}[\log{p(\mathbf{x})} - \log{p(x_1)} - \log{p(x_2)}]\\
+&= -H(\mathbf{X}) + H(X_1) + H(X_2)\\
+&= -\frac{1}{2}\log_2\left((2\pi e)^2\det\Sigma\right) + \log_2\left(2\pi e\sigma^2\right)\\
+&= \log_2\left(\frac{\sigma^2}{\sqrt{\det\Sigma}}\right)\\
+&= -\frac{1}{2}\log_2(1-\rho^2).
+\end{align*}
+Hence, when $\rho = 0$, $I(X_1,X_2) = 0$, and when $\rho^2 = 1$, $I(X_1,X_2) = \infty$. Intuitively, there is no mutual information between $X_1$ and $X_2$ when they are independent, and the opposite of this occurs when they are perfectly correlated.
+
+\subsection{A measure of correlation (normalised mutual information)}
+(Source: (Cover and Thomas 1991, Q2.20)). Let $X$ and $Y$ be discrete random variables which are identically distributed but not necessarily independent. Define
+\begin{equation*}
+r = 1 - \frac{H(Y|X)}{H(X)}.
+\end{equation*}
+a. $\frac{I(X,Y)}{H(X)} = \frac{H(Y) - H(Y|X)}{H(X)} = \frac{H(X) - H(Y|X)}{H(X)} = 1 - \frac{H(Y|X)}{H(X)} = r$.\\\\
+b. Entropy is non-negative, trivially, so $r \leq 1$. From the above, we can also see that if mutual information is non-negative, then $r \geq 0$.
+\begin{align*}
+I(X,Y) &= \mathbb{E}_{X,Y}\left[-\log\frac{p(x)p(y)}{p(x,y)}\right]\\
+&\geq -\log\mathbb{E}_{X,Y}\left[\frac{p(x)p(y)}{p(x,y)}\right]\tag{Jensen's}\\
+&= -\log\left(\int_{\mathbb{R}^2}p(x,y)\frac{p(x)p(y)}{p(x,y)}\,d\mathbf{x}\right)\\
+&= 0.\tag*{\qed}
+\end{align*}\\\\
+c. $r=0$ iff $I(X,Y)=0$. We have equality in Jensen's iff the function is not strictly convex (but the logarithm \textit{is} strictly convex) or when the variable inside the function is constant, i.e.
+\begin{equation*}
+\frac{p(x)p(y)}{p(x,y)} = C
+\end{equation*}
+for all $x,y\in\mathbb{R}$. Due to normalisation, $C$ must be equal to 1, and so $r=0$ iff $p(x,y)=p(x)p(y)$, i.e. $X$ and $Y$ are independent.\\\\
+d. $r=1$ iff $H(Y|X)=0$ iff $p(x,y)=p(y)\ \forall x,y\in\mathbb{R}$, i.e. $X$ is entirely dependent (perfectly correlated with) $Y$, and vice versa.
+
+\subsection{MLE minimises KL divergence to the empirical distribution}
+Recall that the empirical distribution can be defined as
+\begin{equation*}
+p_{emp}(x) = \sum_{i=1}^N w_i\delta_{x_i}(x)
+\end{equation*}
+where we have weights $w_i$ for $N$ distinct sample values $x_i$. The KL divergence
+\begin{equation*}
+KL(p_{emp}||q) = \sum_{i=1}^N w_i \frac{w_i}{q(x_i)}
+\end{equation*}
+has a general minimum at 0 due to non-negativity, and this is attained when $q(x_i) = w_i \,\forall i$, which is the result of applying the MLE.
+
+\subsection{Mean, mode, variance for the beta distribution}
+\begin{align*}
+\mathrm{Beta}(x|a,b) &= \frac{1}{B(a,b)} x^{a-1} (1-x)^{b-1}
+\end{align*}
+We find the mean by repeatedly performing integration by parts.
+\begin{align*}
+\mathbb{E}[x|a,b] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a} (1-x)^{b-1} \,dx\\
+&= \frac{1}{B(a,b)} \left( \frac{1}{a+1} \left[ x^{a+1} (1-x)^{b-1} \right]_{0}^{1} + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \,dx \right)\\
+&= \frac{1}{B(a,b)} \left( 0 + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \,dx \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \left( 0 + \frac{b-2}{a+2} \int_{0}^{1} x^{a+2} (1-x)^{b-3} \,dx \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \dots \left( \frac{1}{a+b-1} \right) \int_{0}^{1} x^{a+b-1} (1-x)^{0} \,dx\\
+&= \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \left( \frac{\Gamma(a+1)\Gamma(b)}{\Gamma(a+b)} \right) \frac{1}{a+b}\\
+&= \frac{a}{a+b}.
+\end{align*}
+The variance is calculated similarly.
+\begin{align*}
+\mathbb{E}[x^2|a,b] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a+1} (1-x)^{b-1} \,dx\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+2} \right) \dots \left( \frac{1}{a+b} \right) \int_{0}^{1} x^{a+b} (1-x)^{0} \,dx\\
+&= \frac{a(a+1)}{(a+b)(a+b+1)}
+\end{align*}
+\begin{align*}
+\mathbb{E}^2[x|a,b] - \mathbb{E}[x^2|a,b] &= \frac{a^2}{(a+b)^2} - \frac{a+1}{a+b+1}\\
+&= \frac{a}{a+b}\left( \frac{a}{a+b} - \frac{a+1}{a+b+1} \right)\\
+&= \frac{ab}{(a+b)^2(a+b+1)}.
+\end{align*}
+We find the mode by setting the derivative to 0.
+\begin{align*}
+0 &= \frac{d}{dx} x^{a-1}(1-x)^{b-1}\\
+&= (a-1)x^{a-2}(1-x)^{b-1} - (b-1)x^{a-1}(1-x)^{b-2}\\
+%\end{align*}
+%\begin{align*}
+(b-1)x^{a-1}(1-x)^{b-2} &= (a-1)x^{a-2}(1-x)^{b-1}\\
+(b-1)x &= (a-1)(1-x)\\
+x &= \frac{a-1}{a+b-2}
+\end{align*}
+
+\subsection{Expected value of the minimum}
+Let $X,Y\overset{i.i.d}{\sim}U[0,1]$ and $Z = \min(X,Y)$. Normally this is done by considering the c.d.f but since we only have 2 variables here we can do it by brute force for variety.
+\begin{align*}
+\mathbb{E}_{X,Y}[Z] &= \int_{\mathbb{R}^2} p(x,y)\min(x,y) \,d\mathbf{x}\\
+&= \int_{\mathbb{R}} \int_{-\infty}^{x} p(x,y)y \,d\mathbf{x} + \int_{\mathbb{R}} \int_{x}^{\infty} p(x,y)x \,d\mathbf{x}\\
+&= \int_{0}^{1} \int_{0}^{x} y \,d\mathbf{x} + \int_{0}^{1} \int_{x}^{1} x \,d\mathbf{x}\\
+&= \int_{0}^{1} \frac{1}{2}x^2 \,dx + \int_{0}^{1} x(1-x) dx\\
+&= \frac{1}{3}.
+\end{align*}
 \end{document}
