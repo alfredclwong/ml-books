@@ -1,6 +1,7 @@
 \documentclass{article}
-\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsmath, amssymb, amsthm, bm}
 \mathchardef\mhyphen="2D
+\DeclareMathOperator*{\argmax}{argmax}
 
 \begin{document}
 \section{Introduction}
@@ -10,6 +11,8 @@ Takes about 19:47 minutes to run on my computer and achieves a test set accuracy
 Cool idea. [TODO]
 \subsection{LOOCV}
 5-fold leave one out cross validation predicts 96.94\% accuracy. Takes 1:30:45 hours to run in total.
+\pagebreak
+
 \section{Probability}
 \subsection{Boys \& girls}
 (Source: Minka). My neighbour has two children. Suppose I ask him whether he has any boys, and he says yes. What is the probability that one child is a girl?
@@ -115,7 +118,7 @@ Hence $(X \perp W|Z,Y) \land (X \perp Y|Z) \implies (X \perp Y,W|Z)$.
 we can factorise $p(x,y|z,w)$ as either $g_z(x,z)h_z(y,z)$ or $g_w(x,w)h_w(y,w)$, depending on which factorisation is available, and so $(X \perp Y|Z) \lor (X \perp Y|W) \lor (X \perp Y|Z,W)$.
 
 \subsection{Deriving the inverse gamma density}
-Suppose $X \sim \mathrm{Gamma(a,b)}$, so $p_X(x) = \frac{b^a}{\Gamma(a)} x^{a-1} \exp^{-xb}$. If $Y=1/X$, then
+Suppose $X \sim \mathrm{Gamma}(a,b)$, so $p_X(x) = \frac{b^a}{\Gamma(a)} x^{a-1} \exp^{-xb}$. If $Y=1/X$, then
 \begin{align*}
 p_Y(y) &= p_X(y^{-1})\left|\frac{d}{dy}(y^{-1})\right|\\
 &= \frac{b^a}{\Gamma(a)} y^{-a+1} \exp^{-b/y} y^{-2}\\
@@ -235,4 +238,144 @@ Let $X,Y\overset{i.i.d}{\sim}U[0,1]$ and $Z = \min(X,Y)$. Normally this is done 
 &= \int_{0}^{1} \frac{1}{2}x^2 \,dx + \int_{0}^{1} x(1-x) dx\\
 &= \frac{1}{3}.
 \end{align*}
+\pagebreak
+
+\section{Generative models for discrete data}
+Warning: really boring.
+\subsection{MLE for the Bernoulli/binomial model}
+\begin{align*}
+L(\theta|\mathcal{D}) &= p(\mathcal{D}|\theta)\\
+&= \theta^{N_1} (1-\theta)^{N_0}\\
+l(\theta|\mathcal{D}) &= N_1\log\theta + N_0\log(1-\theta)\\
+0 &= \frac{dl}{d\theta}\bigg|_{\theta=\hat\theta}\\
+&= \frac{N_1}{\hat\theta} - \frac{N_0}{1-\hat\theta}\\
+\hat\theta &= \frac{N_1}{N_1+N_0}.
+\end{align*}
+
+\subsection{Marginal likelihood for the Beta-Bernoulli model}
+\begin{align*}
+p(D) &= \frac{[(\alpha_1)\dots(\alpha+N_1-1)] [(\alpha_0)\dots(\alpha_0+N_0-1)]}{(\alpha)\dots(\alpha+N-1)}\\
+&= \frac{\frac{\Gamma(\alpha_1+N_1)}{\Gamma(\alpha_1)} \frac{\Gamma(\alpha_0+N_0)}{\Gamma(\alpha_0)}}{\frac{\Gamma(\alpha+N)}{\Gamma(\alpha)}}\\
+&= \frac{\Gamma(\alpha_1+N_1)\Gamma(\alpha_0+N_0)}{\Gamma(\alpha+N)} \frac{\Gamma(\alpha)}{\Gamma(\alpha_1)\Gamma(\alpha_0)}
+\end{align*}
+
+\subsection{Posterior predictive for the Beta-Binomial model}
+\begin{align*}
+p(\tilde{x}=1|n=1,D) &= \frac{B(1+\alpha_1', \alpha_0')}{B(\alpha_1',\alpha_0')} {1\choose 1}\\
+&= \frac{\frac{\Gamma(1+\alpha_1')\Gamma(\alpha_0')}{\Gamma(1+\alpha_1'+\alpha_0')}} {\frac{\Gamma(\alpha_1')\Gamma(\alpha_0')}{\Gamma(\alpha_1'+\alpha_0')}}\\
+&= \frac{\alpha_1'}{\alpha_1'+\alpha_0'}
+\end{align*}
+
+\subsection{Beta updating from censored likelihood}
+(Source: Gelman). Suppose we toss a coin $n=5$ times. Let X be the number of heads. Given the prior probability of heads $p(\theta) = \mathrm{Beta}(\theta|1,1)$ and that $X<3$,
+\begin{align*}
+p(\theta|X<3) &\propto p(X<3|\theta)p(\theta)\\
+&= \sum_{x=0}^2 p(X=x|\theta)p(\theta)\\
+&= \sum_{x=0}^2 \mathrm{Beta}(1+x,1)
+\end{align*}
+
+\subsection{Uninformative prior for log-odds ratio}
+\begin{align*}
+p_\Theta(\theta) &= p_\Phi\left(\log\frac{\theta}{1-\theta}\right) \left|\frac{d}{d\theta}\log\frac{\theta}{1-\theta}\right|\\
+&\propto \frac{1-\theta}{\theta} \frac{1}{(1-\theta)^2}\\
+&= \frac{1}{\theta(1-\theta)}
+\end{align*}
+
+\subsection{MLE for the Poisson distribution}
+\begin{align*}
+\mathcal{L}(\lambda|x) &= e^{-\lambda}\frac{\lambda^x}{x!}\\
+l(\lambda|x) &= -\lambda + x\log\lambda + const.\\
+\frac{dl}{d\lambda} &= -1 + \frac{x}{\lambda}\\
+\hat\lambda &= x
+\end{align*}
+
+\subsection{Bayesian analysis of the Poisson distribution}
+\begin{align*}
+p(\lambda|D) &\propto p(D|\lambda)p(\lambda)\\
+&= e^{-\lambda}\frac{\lambda^x}{x!}\lambda^{a-1}e^{-\lambda b}\\
+&\propto \lambda^{a+x-1}e^{-\lambda(b+1)}
+\end{align*}
+So the posterior is distributed as $\mathrm{Gamma}(\lambda|a+x,b+1)$. The posterior mean $\frac{a+x}{b+1} \rightarrow x = \hat\lambda$ as $a\rightarrow0,\,b\rightarrow0$.
+
+\subsection{MLE for the uniform distribution}
+(Source: Kaelbling). Consider $X \sim U[-a,a]$, such that
+\begin{align*}
+p(x) &= \frac{1}{2a}I(x\in[-a,a])
+\end{align*}
+a. $\mathcal{L}(a|\{x_1,\dots,x_n\}) = \prod_{i=1}^{n}\frac{1}{2a}I(x_i\in[-a,a])$ so $\hat\alpha=\max(|x_1|,\dots,|x_n|)$\\\\
+b. $p(x_{n+1}|\hat\alpha) = \frac{1}{2\hat\alpha}I(x_{n+1}\in[-\hat\alpha, \hat\alpha])$\\\\
+c. This approach has a `black swan' problem, assigning zero chance to data points outside the training data. We could instead use a high variance Gaussian prior, or a Pareto prior. Or, we could try to ensure that all data is normalised within a set range.
+
+\subsection{Bayesian analysis of the uniform distribution}
+\begin{align*}
+p(\theta|\mathcal{D}) &= \frac{p(\mathcal{D},\theta)}{p(\mathcal{D})}\\
+&= \begin{cases}
+\frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq b) \frac{(N+K)b^N}{K} &\text{if $m\leq b$}\\
+\frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq m) \frac{(N+K)m^{N+K}}{Kb^K} &\text{if $m\geq b$}
+\end{cases}\\
+&= \begin{cases}
+(N+K)b^{N+K}\theta^{-(N+K+1)}\mathbb{I}(\theta\geq b) &\text{if $m\leq b$}\\
+(N+K)m^{N+K}\theta^{-(N+K+1)}\mathbb{I}(\theta\geq m) &\text{if $m\geq b$}
+\end{cases}\\
+&= \mathrm{Pareto}(\theta|\max(m,b),\,N+K)
+\end{align*}
+
+\subsection{Taxicab (tramcar) problem}
+a. We have $m=100,\, b=0,\, N=1,\, K=0$ so $p(\theta|D) = \mathrm{Pareto}(\theta|100, 1)$.\\\\
+b. $\mathrm{mean} = \infty$, $\mathrm{mode} = 100$, $\mathrm{median} = 200$.\\\\
+c. $p(D'=\{x\}|m,N) = \frac{N}{(1+N)m}$ if $x\leq m$ otherwise $\frac{Nm^N}{(1+N)x^{1+N}}$. We have $D=\{100\}$, so $m=100,\,N=1$, and
+\begin{align*}
+p(x|D,\alpha) &= \begin{cases}
+\frac{1}{200} &\text{if $x\leq100$}\\
+\frac{50}{x^{2}} &\text{otherwise}
+\end{cases}
+\end{align*}\\\\
+d. $100:\,\frac{1}{200};\,50:\,\frac{1}{200};\,150:\,\frac{1}{450}$.\\\\
+e. The distribution should not be supported below $m$. Could use statistics beyond just the max: if many high numbers are seen it is likelier that the answer is higher. Could also start with an initial prior dataset, which assumes a certain number of taxicabs to start with.
+
+\subsection{Bayesian analysis of the exponential distribution}
+a. $\mathcal{L}(\theta|x) = \prod_{i=1}^N \theta e^{-\theta x_i}$, $\frac{d\mathcal{L}}{d\theta} = \sum_{i=1}^N (1-\theta x_i)e^{-\theta x_i}$, $0 = \sum_{i=1}^N 1-\hat\theta x_i = N - N\hat\theta \bar{x}$, $\hat\theta = 1/\bar{x}$.\\\\
+b. 5 years.\\\\
+c. $p(\theta) = \mathrm{Exp}(\theta|\lambda) = \mathrm{Gamma}(\theta|1, \lambda)$, so $\mathbb{E}[\theta] = \frac{1}{\lambda}$ and $\hat\lambda = 3$.\\\\
+d. $p(\theta|\mathcal{D}, \hat\lambda) \propto p(\mathcal{D}|\theta,\hat\lambda)p(\theta|\hat\lambda) = \left(\prod_{i=1}^N \theta e^{-\theta x_i}\right) \hat\lambda e^{-\hat\lambda\theta} \propto \theta^N e^{-(N\bar{x}+\hat\lambda)\theta} \propto \mathrm{Gamma}(N+1, N\bar{x}+\hat\lambda)$.\\\\
+e. Sort of. The Gamma prior $p(\theta) = \mathrm{Exp}(\theta|\lambda) = \mathrm{Gamma}(\theta|1, \lambda)$ is conjugate to the exponential likelihood.\\\\
+f. $\mathbb{E}[\theta|\mathcal{D},\hat\lambda] = \frac{N+1}{N\bar{x}+\hat\lambda}$.\\\\
+g. The posterior mean tends to the MLE as $N\rightarrow\infty$ but is equal to the prior mean when $N=0$. Like every single other Bayesian analysis.
+
+\subsection{MAP estimation for the Bernoulli with non-conjugate priors}
+(Source: Jaakkola).\\\\
+a. $p(\theta|N_1, N) \propto p(N_1, N|\theta)p(\theta) \propto \theta^{N_1}(1-\theta)^{N-N_1} (\delta(\theta-0.5)+\delta(\theta-0.4))$, so $\mathrm{MAP} = \argmax_{\theta\in\{0.5,0.4\}} \theta^{N_1}(1-\theta)^{N-N_1}$. Observe that $0.5^N > 0.6^{N_1}0.4^{N-N_1} \iff N\log0.5 > N_1\log0.6 + (N-N_1)\log0.4 \iff \frac{N_1}{N} > \frac{\log1.25}{\log1.5}$, and so $\mathrm{MAP} = 0.5$ if $\frac{N_1}{N} > \frac{\log1.25}{\log1.5} \approx 0.55$, otherwise $0.4$.\\\\
+b. When $N$ is large, the more generic Beta prior will allow a more accurate value of the true parameter to be found. However, this takes longer to achieve, whereas the tailored prior will more quickly reach $\theta = 0.4$ and stay there, even for small $N$. We could possibly calculate probabilities for these occurrences but I really don't want to do this anymore.
+
+\subsection{Posterior predictive distribution for a batch of data with the Dirichlet-multinomial model}
+\begin{align*}
+p(\tilde{\mathcal{D}}|\mathcal{D},\bm\alpha) &= \frac{p(\tilde{\mathcal{D}},\mathcal{D}|\bm\alpha)}{p(\mathcal{D}|\bm\alpha)}\\
+&= \frac{
+	\frac{\Gamma(\alpha)}{\Gamma(N^{new}+N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{new}+N_k^{old}+\alpha_k)}{\Gamma(\alpha_k)}
+}{
+	\frac{\Gamma(\alpha)}{\Gamma(N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{old}+\alpha_k)}{\Gamma(\alpha_k)}
+}\\
+&= \frac{\Gamma(N^{old}+\alpha)}{\Gamma(N^{new}+N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{new}+N_k^{old}+\alpha_k)}{\Gamma(N_k^{old}+\alpha_k)}\\
+&= \frac{B(\mathbf{N}^{new}+\mathbf{N}^{old}+\bm\alpha)}{B(\mathbf{N}^{old}+\bm\alpha)}
+\end{align*}
+
+It is important to note here that while the counts $\mathbf{N}^{old}$ and $\mathbf{N}^{new}$ are sufficient statistics, we are still predicting $p(\tilde{\mathcal{D}})$ rather than $p(\mathbf{N}^{new})$. The distinction here is that \textbf{order matters} in the former - otherwise, we need to multiply the pdf by a multinomial factor to account for the number of ways in which the counts can be achieved.
+
+\subsection{Posterior predictive for Dirichlet-multinomial}
+(Source: Koller).\\\\
+a. $p(x_{2001}=e|\mathcal{D}) = \frac{260+10}{2000+270} = \frac{27}{227} \approx 12\%.$\\\\
+b. $p(x_{2001}=p,x_{2002}=a|\mathcal{D}) = p(x_{2001}=p|\mathcal{D})p(x_{2002}=a|x_{2001}=p,\mathcal{D}) = \left(\frac{87+10}{2000+270}\right) \left(\frac{100+10}{2001+270}\right) \approx 0.21\%.$
+
+\subsection{Setting the beta hyper-parameters}
+\begin{align*}
+m &= \frac{\alpha_1}{\alpha_1+\alpha_2}\\
+v &= \frac{\alpha_1\alpha_2}{(\alpha_1+\alpha_2)^2(\alpha_1+\alpha_2+1)}\\
+&= \frac{m(1-m)}{\alpha_1/m+1}\\
+\frac{\alpha_1}{m}+1 &= \frac{m(1-m)}{v}\\
+\alpha_1 &= m\left(\frac{m(1-m)}{v}-1\right)\\
+\alpha_2 &= (1-m)\left(\frac{m(1-m)}{v}-1\right)
+\end{align*}
+
+\subsection{Setting the beta hyper-parameters II}
+(Source: Draper). 
 \end{document}
