@@ -377,5 +377,77 @@ v &= \frac{\alpha_1\alpha_2}{(\alpha_1+\alpha_2)^2(\alpha_1+\alpha_2+1)}\\
 \end{align*}
 
 \subsection{Setting the beta hyper-parameters II}
-(Source: Draper). 
+(Source: Draper). The code in \texttt{316-beta-cdf.py} finds $\alpha_1 = 4.506$, $\alpha_2 = 25.534$, corresponding to an equivalent sample size of $\alpha_1+\alpha_2 \approx 30$.
+
+\subsection{Marginal likelihood for beta-binomial under uniform prior}
+\begin{align*}
+p(N_1|N) &= \int_{\mathbb{R}} p(N_1|N,\theta)p(\theta) \,d\theta\\
+&= {N \choose N_1} \int_0^1 \theta^{N_1} (1-\theta)^{N-N_1} \,d\theta\\
+&= {N \choose N_1} \left(\frac{N-N_1}{N_1+1}\right) \int_0^1 \theta^{N_1+1} (1-\theta)^{N-N_1-1} \,d\theta\\
+&= \,\,\dots\\
+&= {N \choose N_1} \left(\frac{N_1!(N-N_1)!}{N!}\right) \int_0^1 \theta^N \,d\theta\\
+&= \frac{1}{N+1}
+\end{align*}
+
+\subsection{Bayes factor for coin tossing}
+\begin{align*}
+BF_{1,0} &= \frac{\int_{\mathbb{R}} p(N_1=9|N=10,\theta)p(\theta) \,d\theta}{p(N_1=9|N=10,\theta=0.5)}\\
+&= \frac{\frac{1}{10+1}}{{10 \choose 9} 0.5^{10}}\\
+&\approx 9.3
+\end{align*}
+If $N=100$ and $N_1=90$, we have
+\begin{align*}
+BF_{1,0} &= \frac{\frac{1}{100+1}}{{100 \choose 90} 0.5^{100}}\\
+&= \frac{90!10!(2^{100})}{101!}\\
+\log BF_{1,0} &= \sum_{i=1}^{10} \log i - \sum_{i=91}^{101} \log i + 100\log 2\\
+&\approx 34.2
+\end{align*}
+which represents a strong argument supporting the biased hypothesis.
+
+\subsection{Irrelevant features with naive Bayes}
+(Source: Jaakkola).\\\\
+a. Using Bayes (the proportionality terms cancel), we have
+\begin{align*}
+\log_2\frac{p(c=1|\mathbf{x}_i)}{p(c=2|\mathbf{x}_i)} &= \log_2\frac{p(\mathbf{x}_i|c=1)p(c=1)}{p(\mathbf{x}_i|c=2)p(c=2)}\\
+&= \log_2\frac{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_2)}\\
+&= (\log_2e)\bm\phi(\mathbf{x}_i)^T(\bm\beta_1-\bm\beta_2)
+\end{align*}
+b. The posterior odds ratio for $\mathbf{\tilde{x}}_i$, where $\tilde{x}_{iw} = 1-x_{iw}$, is unchanged
+\begin{alignat*}{2}
+\iff&& \frac{p(\mathbf{x}_i|c=1)}{p(\mathbf{x}_i|c=2)} &= \frac{p(\mathbf{\tilde{x}}_i|c=1)}{p(\mathbf{\tilde{x}}_i|c=2)}\\
+\iff&& \frac{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_2)} &= \frac{\exp(\bm\phi(\mathbf{\tilde{x}}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{\tilde{x}}_i)^T \bm\beta_2)}\\
+\iff&& (\bm\phi(\mathbf{x}_i)-\bm\phi(\mathbf{\tilde{x}}_i))^T \bm\beta_1 &= (\bm\phi(\mathbf{x}_i)-\bm\phi(\mathbf{\tilde{x}}_i))^T \bm\beta_2\\
+\iff&& (2x_{iw}-1) \beta_{1,w} &= (2x_{iw}-1) \beta_{2,w}\\
+\iff&& \beta_{1,w} &= \beta_{2,w}\\
+\iff&& \theta_{1,w} &= \theta_{2,w}
+\end{alignat*}
+c. Word $w$ is ignored
+\begin{alignat*}{2}
+\iff&& \hat\theta_{1,w} &= \hat\theta_{2,w}\\
+\iff&& \frac{1+n_1}{2+n_1} &= \frac{1+n_2}{2+n_2}\\
+\iff&& n_1 &= n_2
+\end{alignat*}
+but this is not the case.\\\\
+d. For large $n_1$ and $n_2$, both posterior mean estimates tend to $\frac{1}{2}$ in the case above and $\frac{1}{n_c}\sum_{i\in c}x_{iw}$ in the general case. Thus the intended cancelling out of $\theta$ and $\beta$ values for irrelevant words will work. We could also do separate processing of the data to pick out irrelevant words using a different mechanism.
+
+\subsection{Class conditional densities for binary data}
+a. The full model must cover all $\mathbf{x} \in \{0,1\}^D$ without any assumptions, which will require $C(2^D-1)$ parameters: one for each outcome for each class.\\\\
+b,c. Since there are many more parameters in the full model, it will take longer (greater N) to achieve better accuracy, while the naive Bayes approximation will reach a decent result more quickly.\\\\
+d. For Na\"ive Bayes, we find the parameters by scaling counts for each feature (and for each class, but here we assume constant $C$), which has $O(ND)$ complexity. For the full model, we instead have counts for each outcome (for each class). Since we can convert each $D$-bit training data point into its `outcome index' in $O(D)$, this also comes out to an $O(ND)$ complexity.\\\\
+e. For Na\"ive Bayes, we have to find $D$ Bernoulli factors for each test case (for each class). For the full model, we only have to perform one value lookup (for each class), but this involves conversion between $D$-bit vectors and indices. The associated computational complexities depend on how the parameters are stored. Assuming no optimisations, both are $O(D)$.\\\\
+f. For Na\"ive Bayes, we can simply ignore the hidden features since the classification is relative and the features are conditionally independent. Thus we only need to find $v$ Bernoulli parameters: $O(v)$. For the full model, we need to marginalise over the hidden parameters. Assuming no optimisations, this would involve converting $2^h$ potential $D$-bit data vectors into indices in order to find their associated parameters: $O(2^h(v+h))$.
+
+\subsection{Mutual information for naive Bayes classifiers with binary features}
+\begin{align*}
+I(X,Y) &= \sum_{x_j} \sum_y p(x_j,y) \log\frac{p(x_j,y)}{p(x_j)p(y)}\\
+&= \sum_{i=0,1} \sum_c p(x_j=i,y=c) \log\frac{p(x_j=i,y=c)}{p(x_j=i)p(y=c)}\\
+&= \sum_{i=0,1} \sum_c p(x_j=i|y=c)p(y=c) \log\frac{p(x_j=i|y=c)}{p(x_j=i)}\\
+&= \sum_c (1-\theta_{jc}) \pi_c \log\frac{1-\theta_{jc}}{1-\theta_j} + \theta_{jc} \pi_c \log\frac{\theta_{jc}}{\theta_j}
+\end{align*}
+
+\subsection{Fitting a naive Bayes spam filter by hand}
+(Source: Daphne Koller). $\hat\theta_{spam} = 3/7,\, \hat\theta_{secret|spam} = 2/3,\, \hat\theta_{secret|non-spam} = 1/4,\, \hat\theta_{sports|non-spam} = 1/2,\, \hat\theta_{dollar|spam} = 1/3.$
+\pagebreak
+
+%\section{Gaussian models}
 \end{document}
