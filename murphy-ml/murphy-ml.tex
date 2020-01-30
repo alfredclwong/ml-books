@@ -455,5 +455,42 @@ I(X,Y) &= \sum_{x_j} \sum_y p(x_j,y) \log\frac{p(x_j,y)}{p(x_j)p(y)}\\
 (Source: Daphne Koller). $\hat\theta_{spam} = 3/7,\, \hat\theta_{secret|spam} = 2/3,\, \hat\theta_{secret|non-spam} = 1/4,\, \hat\theta_{sports|non-spam} = 1/2,\, \hat\theta_{dollar|spam} = 1/3.$
 \pagebreak
 
-%\section{Gaussian models}
+\section{Gaussian models}
+\subsection{Uncorrelated does not imply independent}
+Let $X \sim U(-1,1)$ and $Y = X^2$. Clearly $Y$ is dependent on $X$ (in fact, $Y$ is uniquely determined by X). However, $\mathrm{cov}[X,Y] = \mathbb{E}[XY]-\mathbb{E}[X]\mathbb{E}[Y] = 0$ and so $\rho(X,Y)=0$, i.e. $X$ and $Y$ are uncorrelated.
+
+\subsection{Uncorrelated and Gaussian does not imply independent unless \textit{jointly} Gaussian}
+Let $X \sim \mathcal{N}(0,1)$ and $Y=WX$, where $p(W=-1)=p(W=1)=0.5$. It is clear that $X$ and $Y$ are not independent, since $Y$ is a function of $X$.\\\\
+a. $p_Y(y) = \mathbb{P}(Y=y) = \mathbb{P}(W=1,X=y) + \mathbb{P}(W=-1,X=-y) = 0.5p_X(y) + 0.5p_X(-y) = p_X(y)$ due to symmetry. So $Y \sim \mathcal{N}(0,1)$.\\\\
+b. But $\mathrm{cov}[X,Y] = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = \mathbb{E}_W[\mathbb{E}_{X,Y}[XY|W]] - \mathbb{E}_X[X]\mathbb{E}_Y[Y] = 0.5\mathbb{E}[X^2] + 0.5\mathbb{E}[-X^2] - 0 = 0$, so $X$ and $Y$ are uncorrelated. Note that in the jointly Gaussian case, we can factorise the joint distribution (implying independence) if the covariance matrix is diagonal (implying uncorrelated variables).
+
+\subsection{Correlation coefficient is between -1 and +1}
+We note that the covariance specifies an inner product, as it is symmetric, positive definite and linear (in the first argument). Thus by Cauchy-Schwarz, we have
+\begin{align*}
+|\mathrm{cov}(X,Y)| &\leq \mathrm{cov}(X,X) \cdot \mathrm{cov}(Y,Y)\\
+&= \sigma_X\sigma_Y\\
+|\rho(X,Y)| &= \frac{|\mathrm{cov}(X,Y)|}{\sigma_X\sigma_Y}\\
+&\leq 1.
+\end{align*}
+
+\subsection{Correlation coefficient for linearly related variables is $\pm1$}
+If $Y=aX+b$, then
+\begin{align*}
+\sigma_Y^2 &= \mathbb{E}[Y^2] - \mu_Y^2\\
+&= \mathbb{E}[(aX+b)^2] - (a\mu_X+b)^2\\
+&= a^2(\sigma_X^2+\mu_X^2) + 2ab\mu_X + b^2 - (a\mu_X+b)^2\\
+&= a^2\sigma_X^2\\
+\mathrm{cov}(X,Y) &= \mathbb{E}[X(aX+b)] - \mu_X(a\mu_X+b)\\
+&= a(\sigma_X^2+\mu_X^2) + b\mu_X - \mu_X(a\mu_X+b)\\
+&= a\sigma_X^2\\
+\rho(X,Y) &= \frac{\mathrm{cov}(X,Y)}{\sigma_X\sigma_Y}\\
+&= \frac{a\sigma_X^2}{\sigma_X\sqrt{a^2\sigma_X^2}}\\
+&= \frac{a}{|a|}.
+\end{align*}
+
+%\subsection{Normalization constant for a multidimensional Gaussian}
+
+
+%\section{Logistic regression}
+
 \end{document}
