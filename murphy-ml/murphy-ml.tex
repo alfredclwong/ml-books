@@ -3,19 +3,22 @@
 \mathchardef\mhyphen="2D
 \DeclareMathOperator*{\argmax}{argmax}
 
-\title{Rough solutions to\\\textit{Machine Learning: A Probabilistic Perspective} (Murphy)}
+\title{Rough solutions to\\\textit{Machine Learning: A Probabilistic Perspective}\\by Kevin Murphy}
 \author{Alfred Wong}
 \date{\vspace{-\baselineskip}}
 \begin{document}
 \maketitle
 \pagebreak
+\tableofcontents
+\pagebreak
 
 \section{Introduction}
-\subsection{1NN}
+These exercises offer a practical introduction to some machine learning concepts using KNN and MNIST. Will revisit this later as I'm currently more concerned with the theoretical stuff.
+\subsection{KNN classifier on shuffled MNIST data}
 Takes about 19:47 minutes to run on my computer and achieves a test set accuracy of 96.61\%.
-\subsection{FLANN}
+\subsection{Approximate KNN classifiers}
 Cool idea. [TODO]
-\subsection{LOOCV}
+\subsection{CV for KNN}
 5-fold leave one out cross validation predicts 96.94\% accuracy. Takes 1:30:45 hours to run in total.
 \pagebreak
 
@@ -462,7 +465,8 @@ Let $X \sim U(-1,1)$ and $Y = X^2$. Clearly $Y$ is dependent on $X$ (in fact, $Y
 \subsection{Uncorrelated and Gaussian does not imply independent unless \textit{jointly} Gaussian}
 Let $X \sim \mathcal{N}(0,1)$ and $Y=WX$, where $p(W=-1)=p(W=1)=0.5$. It is clear that $X$ and $Y$ are not independent, since $Y$ is a function of $X$.\\\\
 a. $p_Y(y) = \mathbb{P}(Y=y) = \mathbb{P}(W=1,X=y) + \mathbb{P}(W=-1,X=-y) = 0.5p_X(y) + 0.5p_X(-y) = p_X(y)$ due to symmetry. So $Y \sim \mathcal{N}(0,1)$.\\\\
-b. But $\mathrm{cov}[X,Y] = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = \mathbb{E}_W[\mathbb{E}_{X,Y}[XY|W]] - \mathbb{E}_X[X]\mathbb{E}_Y[Y] = 0.5\mathbb{E}[X^2] + 0.5\mathbb{E}[-X^2] - 0 = 0$, so $X$ and $Y$ are uncorrelated. Note that in the jointly Gaussian case, we can factorise the joint distribution (implying independence) if the covariance matrix is diagonal (implying uncorrelated variables).
+b. But $\mathrm{cov}[X,Y] = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = \mathbb{E}_W[\mathbb{E}_{X,Y}[XY|W]] - \mathbb{E}_X[X]\mathbb{E}_Y[Y] = 0.5\mathbb{E}[X^2] + 0.5\mathbb{E}[-X^2] - 0 = 0$, so $X$ and $Y$ are uncorrelated.\\\\
+Note that in the jointly Gaussian case, we can factorise the joint distribution (implying independence) if the covariance matrix is diagonal (implying uncorrelated variables).
 
 \subsection{Correlation coefficient is between -1 and +1}
 We note that the covariance specifies an inner product, as it is symmetric, positive definite and linear (in the first argument). Thus by Cauchy-Schwarz, we have
