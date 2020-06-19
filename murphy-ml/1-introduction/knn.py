@@ -16,7 +16,7 @@ def knn(k, train_data, train_labels, test_data):
 
 
 if __name__ == '__main__':
-    data_dir = '../data/mnist/'
+    data_dir = 'data/mnist/'
     train_images = np.load(f'{data_dir}train_images.npy')
     train_labels = np.load(f'{data_dir}train_labels.npy')
     test_images = np.load(f'{data_dir}test_images.npy')#[:1000]

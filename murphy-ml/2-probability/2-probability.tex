@@ -1,0 +1,262 @@
+\section{Probability}
+\subsection{Boys \& girls}
+\textit{(Source: Minka). My neighbour has two children. Suppose I ask him whether he has any boys, and he says yes. What is the probability that one child is a girl?}
+
+\begin{align*}
+\mathbb{P}(BG \lor GB | BB \lor BG \lor GB) &= \frac{\mathbb{P}((BG \lor GB) \land (BB \lor BG \lor GB))}{\mathbb{P}(BB \lor BG \lor GB)} \\
+&= \frac{\mathbb{P}(BG \lor GB)}{\mathbb{P}(BB \lor BG \lor GB)} \\
+&= \frac{2}{3}
+\end{align*}
+
+This result is somewhat interesting because you might expect that knowing your neighbour has any boys would decrease the likelihood of having one girl, which is 1/2 a priori. However, we can see from the above that this works because the conditionining cuts out the GG case, where there is not exactly one girl.
+
+\textit{Suppose instead that I happen to see one of his children run by, and it is a boy. What is the probability that the other child is a girl?}
+
+Without loss of generality, we can assume that we saw child 1. Thus
+\begin{gather*}
+\mathbb{P}(BG | BB \lor BG) = \frac{\mathbb{P}(BG \land (BB \lor BG))}{\mathbb{P}(BB \lor BG)} = \frac{\mathbb{P}(BG)}{\mathbb{P}(BB \lor BG)} = \frac{1}{2}
+\end{gather*}
+
+In this case, observing one child does not have any bearing on the gender of the other, as expected. This is different from the previous problem because there we were given information that affected both children. As suggested by the heading, subtle differences in phrasing can lead to very different probabilities.
+
+\textit{(Bonus question). Along the theme of genders of children, another somewhat interesting problem arises when we are given that one of the children is a boy, born on a Tuesday. Now, what is the probability of both children being boys?}
+
+\begin{table}[!h]
+\centering
+    \begin{tabular}{cc|cccc}
+    &   & \multicolumn{2}{c}{B}   & \multicolumn{2}{c}{G} \\
+    &   & T          & N          & T         & N         \\ \hline
+\multirow{2}{*}{B} & T & \textbf{1} & \textbf{6} & 1         & 6         \\
+    & N & \textbf{6} & $\ast$     & $\ast$    & $\ast$    \\
+\multirow{2}{*}{G} & T & 1          & $\ast$     & $\ast$    & $\ast$    \\
+    & N & 6          & $\ast$     & $\ast$    & $\ast$   
+\end{tabular}
+\end{table}
+
+13/27.
+
+\subsection{Legal reasoning}
+\textit{(Source: Peter Lee). Suppose a crime has been committed. Blood is found at the scene for which there is no innocent explanation. It is of a type which is present in 1\% of the population.}
+
+\textit{The prosecutor claims: ``There is a 1\% chance that the defendant would have the crime blood type if he were innocent. Thus there is a 99\% chance that he is guilty."}
+
+\textit{The defender claims: ``The crime occurred in a city of 800,000 people. The blood type would be found in approximately 8000 people. The evidence has provided a probability of just 1 in 8000 that the defendant is guilty, and thus has no relevance."}
+
+Denote $A$ as having the crime blood type and $B$ as being innocent. The prosecutor's argument has two flaws. First, it assumes that $\mathbb{P}(A|B) = 1\% = \mathbb{P}(A)$, which is not generally true, although it is likely. Worse, it then asserts that $\mathbb{P}(A|B) + \mathbb{P}(\neg B|A) = 1$, which is just clearly not true in general.
+
+For the defender's argument, assuming that the blood type test is 100\% sensitive, i.e. $\mathbb{P}(A|\neg B) = 1$, then it is certainly true that $\mathbb{P}(\neg B|A) = \mathbb{P}(\neg B)/\mathbb{P}(A)$. So, if the defendant was randomly pulled off the streets, and this was the only incriminating evidence available, it is likely that the case would be insufficient for a conviction. This is a good thing.
+
+However, the fact that the defendant is under trial probably means that they were not randomly selected in the first place. Denoting $D$ as being placed under trial, we actually want to know $\mathbb{P}(\neg B|A \land D) = \mathbb{P}(\neg B|D)/\mathbb{P}(A|D)$. Far from being `irrelevant', the evidence has the effect of increasing our prior suspicion of involvement by a factor of 100, assuming that $\mathbb{P}(A|D) = \mathbb{P}(A)$. The defender's fallacy lies in the assertion that this prior suspicion is only 1/800,000.
+
+\subsection{Variance of a sum}
+Suppose $X$ and $Y$ are random variables with means $\mu_X$ and $\mu_Y$, variances $\sigma_X^2$ and $\sigma_Y^2$, and covariance $\sigma_{XY}$. Let $Z = X + Y$. Then
+\begin{align*}
+\sigma_Z^2 &= \mathbb{E}[Z^2] - \mu_Z^2\\
+&= \mathbb{E}[X^2 + Y^2 + 2XY] - (\mu_X^2 + \mu_Y^2 + 2\mu_X\mu_Y)\\
+&= \mathbb{E}[X^2] - \mu_X^2 + \mathbb{E}[Y^2] - \mu_Y^2 + 2(\mathbb{E}[XY] - \mu_X\mu_Y)\\
+&= \sigma_X^2 + \sigma_Y^2 + 2\sigma_{XY}.
+\end{align*}
+
+Since $|\sigma_{XY}| \leq \sigma_X\sigma_Y$, this means that $(\sigma_X - \sigma_Y)^2 \leq \sigma_Z^2 \leq (\sigma_X + \sigma_Y)^2$.
+
+\subsection{Medical diagnosis}
+\textit{(Source: Koller). You test positive for a serious disease, and the test is 99\% accurate (i.e. the probability of testing positive given that you have the disease is 0.99, as is the probability of testing negative if you don't have the disease). This is a rare disease, striking only 1 in 10,000 people. What are the chances that you actually have the disease?}
+
+\begin{align*}
+\mathbb{P}(\mathrm{disease}|\mathrm{positive}) &= \frac{\mathbb{P}(\mathrm{positive}|\mathrm{disease}) \mathbb{P}(\mathrm{disease})}{\mathbb{P}(\mathrm{positive})}\\
+&= \frac{(99\%)(0.01\%)}{(99\%)(0.01\%)+(1\%)(99.99\%)}\\ &= 0.98\%.
+\end{align*}
+
+\subsection{Monty Hall problem}
+\textit{(Source: Mackay). There are three doors with a single prize hidden behind one of them. You get to select one door. Initially, your chosen door will not be opened; instead, the gameshow host will open one of the other two doors, and he will do so in such a way as not to reveal the prize.}
+
+\textit{At this point, you will be given a fresh choice of door: you can either stick with your first choice, or you can switch to the other closed door. All the doors will then be opened and you will receive whatever is behind your final choice of door.}
+
+\textit{Imagine that a contestant chooses door 1 first; then the gameshow host opens door 3, revealing nothing behind the door. Should the contestant stick with door 1 or switch to door 2, or does it make no difference? You may assume that initially the prize is equally likely to be behind any of the 3 doors.}
+
+\begin{gather*}
+\mathbb{P}(1) = \frac{1}{3}\\
+\mathbb{P}(2|\neg 3) = \frac{\mathbb{P}(\neg 3|2)\mathbb{P}(2)}{\mathbb{P}(\neg 3)} = \frac{(1)(1/3)}{2/3} = \frac{1}{2}
+\end{gather*}
+
+This shows that the contestant should switch doors, increasing the chance of winning the prize from 1/3 to 1/2. The more intuitive argument behind this is that the first pick was a choice between three options, whereas the second pick, if switched, would be a choice between two options.
+
+\subsection{Conditional independence}
+\textit{(Source: Koller).}
+
+\begin{gather*}
+\mathbb{P}(H=k|E_1=e_1,E_2=e_2) = \frac{\mathbb{P}(E_1=e_1,E_2=e_2|H=k)\mathbb{P}(H=k)}{\mathbb{P}(E_1=e_1,E_2=e_2)}
+\end{gather*}
+
+So, set ii. is sufficient for the calculation.
+
+If $E_1 \indep E_2|H$, then we can break down the term
+\begin{gather*}
+\mathbb{P}(E_1=e_1,E_2=e_2|H=k) = \mathbb{P}(E_1=e_1|H=k)\mathbb{P}(E_2=e_2|H=k)
+\end{gather*}
+and so set i. is also sufficient. Furthermore, we can calculate the joint probability for $E_1$ and $E_2$ by marginalising over $H$ to get
+\begin{align*}
+\mathbb{P}(E_1=e_1,E_2=e_2) &= \sum_{k=1}^{K} \mathbb{P}(E_1=e_1,E_2=e_2|H=k)\mathbb{P}(H=k)\\
+&= \sum_{k=1}^{K} \mathbb{P}(E_1=e_1|H=k)\mathbb{P}(E_2=e_2|H=k)\mathbb{P}(H=k)
+\end{align*}
+and so all three sets will suffice for the calculation, in the case of conditional independence.
+
+\subsection{Pairwise independence does not imply mutual independence}
+Suppose $A$, $B$, $C$ are pairwise independent random variables. A necessary condition for mutual independence is that $\mathbb{P}(A|B,C) = \mathbb{P}(A)$, but for this to be true it would require that
+\begin{gather*}
+\mathbb{P}(A|B,C) = \frac{\mathbb{P}(B,C|A)\mathbb{P}(A)}{\mathbb{P}(B,C)} = \mathbb{P}(A)
+\end{gather*}
+and so $\mathbb{P}(B,C|A) = \mathbb{P}(B,C)$. Therefore, a counterexample where pairwise independence does not imply mutual independence would have $(B,C)$ not independent of $A$. A simple example of this is constructed when $B$ and $C$ are independent coin flips and $A$ is whether or not they land on the same side as each other.
+
+\subsection{Conditional independence iff joint factorises}
+We have conditional independence $X \indep Y | Z$ iff $p(x,y|z) = p(x|z)p(y|z)$, by definition. We now show that this holds iff we can factorise the joint as $p(x,y|z) = g(x,z)h(y,z)$ for some functions $g$ and $h$.
+
+$(\implies).$ Suppose $p(x,y|z) = p(x|z)p(y|z)$. Let $g(x,z) = p(x|z)$ and $h(y,z) = p(y|z)$. Done.
+
+$(\impliedby).$ Suppose $p(x,y|z) = g(x,z)h(y,z)$. Then we can marginalise out $y$, say, as follows: $p(x|z) = \int p(x,y|z) dy = \int g(x,z)h(y,z) dy = g(x,z) \cdot \int h(y,z) dy$. Similarly for $x$, we have $p(y|z) = \int g(x,z) dx \cdot h(y,z)$, and so $p(x|z)p(y|z) \propto g(x,z)h(y,z) = p(x,y|z)$, since $z$ is constant.
+
+\subsection{Conditional independence}
+\textit{(Source: Koller).}
+
+\textit{Is it true that $(X \indep W | Z,Y) \land (X \indep Y | Z) \implies (X \indep Y, W | Z)$?}
+
+\textbf{True.} Suppose $(X \indep W|Z,Y) \land (X \indep Y|Z)$. Then
+\begin{align*}
+p(x,w,y|z) &= p(x|z)p(w,y|x,z) \tag{chain rule}\\
+&= p(x|z)p(y|x,z)p(w|x,y,z) \tag{chain rule}\\
+&= p(x|z)p(y|z)p(w|y,z) \tag{assumption}\\
+&= p(x|z)p(y,w|z). \tag*{\qed}
+\end{align*}
+
+\textit{How about $(X \indep Y | Z) \land (X \indep Y | W) \implies (X \indep Y | Z, W)$?}
+
+\textbf{False.} We can construct a counterexample by taking $X \indep Y$ and creating information $Z$ and $W$ such that $X \nindep Y | Z, W$ only. For example, let $X$ and $Y$ be independent coin flips such that $X = Y$ iff $Z = W$.
+
+\subsection{Deriving the inverse gamma density}
+Suppose $X \sim \mathrm{Gamma}(a,b)$, $p_X(x) = \frac{b^a}{\Gamma(a)} x^{a-1} \exp^{-xb}$. If $Y=1/X$, then
+\begin{align*}
+p_Y(y) &= p_X(y^{-1})\left|\frac{d}{dy}(y^{-1})\right|\\
+&= \frac{b^a}{\Gamma(a)} y^{-a+1} \exp^{-b/y} y^{-2}\\
+&= \frac{b^a}{\Gamma(a)} y^{-a-1} \exp^{-b/y}
+\end{align*}
+and so $Y \sim \mathrm{Inv \mhyphen Gamma}(a,b)$.
+
+\subsection{Normalisation constant for a 1D Gaussian}
+\begin{align*}
+Z^2 &= \int_{0}^{2\pi} \int_{0}^{\infty} r \exp\left(-\frac{r^2}{2\sigma^2}\right) \diff{r} \diff{\theta}\\
+&= 2\pi \left[-\sigma^2 \exp\left(-\frac{r^2}{2\sigma^2}\right) \right]_{0}^{\infty}\\
+&= 2\pi\sigma^2.
+\end{align*}
+
+\subsection{Expressing mutual information in terms of entropies}
+Recall the relevant definitions for entropy $H(X)$, conditional entropy $H(X|Y)$ and mutual information $I(X,Y)$.
+\begin{align*}
+H(X) &= -\sum_x p(x) \log p(x)\\
+H(X|Y) &= -\sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
+I(X,Y) &= \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(x)p(y)}\\
+&= \sum_x \sum_y p(x,y) \left( -\log{p(x)} + \log\frac{p(x,y)}{p(y)} \right)\\
+&= -\sum_x \sum_y p(x,y)\log{p(x)} + \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
+&= -\sum_x p(x)\log{p(x)} - H(X|Y)\\
+&= H(X) - H(X|Y).
+\end{align*}
+Similarly, $I(X,Y) = H(Y) - H(Y|X)$.
+
+\subsection{Mutual information for correlated normals}
+\textit{(Source: Cover and Thomas 1991, Q9.3). Find the mutual information $I(X_1, X_2)$, where $\mathbf{X}$ has a bivariate normal distribution}
+\begin{equation*}
+\begin{bmatrix}X_1\\X_2\end{bmatrix} \sim \mathcal{N}\left(\mathbf{0}, \begin{bmatrix}\sigma^2&\rho\sigma^2\\\rho\sigma^2&\sigma^2\end{bmatrix}\right).
+\end{equation*}
+\begin{align*}
+I(X_1, X_2) &= \mathbb{E}_{\mathbf{X}}\left[ \log\frac{p(\mathbf{x})}{p(x_1)p(x_2)} \right]\\
+&= \mathbb{E}_{\mathbf{X}}[\log{p(\mathbf{x})} - \log{p(x_1)} - \log{p(x_2)}]\\
+&= -H(\mathbf{X}) + H(X_1) + H(X_2)\\
+&= -\frac{1}{2}\log_2\left((2\pi e)^2\det\Sigma\right) + \log_2\left(2\pi e\sigma^2\right)\\
+&= \log_2\left(\frac{\sigma^2}{\sqrt{\det\Sigma}}\right)\\
+&= -\frac{1}{2}\log_2(1-\rho^2).
+\end{align*}
+Hence, when $\rho = 0$, $I(X_1,X_2) = 0$, and when $\rho^2 = 1$, $I(X_1,X_2) = \infty$. Intuitively, there is no mutual information between $X_1$ and $X_2$ when they are independent, and vice versa.
+
+\subsection{A measure of correlation (normalised mutual information)}
+\textit{(Source: Cover and Thomas 1991, Q2.20). Let $X$ and $Y$ be discrete random variables which are identically distributed but not necessarily independent. Define}
+\begin{equation*}
+r = 1 - \frac{H(Y|X)}{H(X)}.
+\end{equation*}
+
+a. \textit{Show $r = \frac{I(X,Y)}{H(X)}$}
+\begin{align*}
+\frac{I(X,Y)}{H(X)} = \frac{H(Y) - H(Y|X)}{H(X)} = \frac{H(X) - H(Y|X)}{H(X)} = 1 - \frac{H(Y|X)}{H(X)} = r
+\end{align*}
+
+b. \textit{Show $0 \leq r \leq 1$}
+
+Entropy is non-negative, so $r \leq 1$. From the above, we can also see that if the mutual information is non-negative, then $r \geq 0$.
+\begin{align*}
+I(X,Y) &= \mathbb{E}_{X,Y}\left[-\log\frac{p(x)p(y)}{p(x,y)}\right]\\
+&\geq -\log\mathbb{E}_{X,Y}\left[\frac{p(x)p(y)}{p(x,y)}\right]\tag{Jensen's}\\
+&= -\log\left(\int_{\mathbb{R}^2}p(x,y)\frac{p(x)p(y)}{p(x,y)}\diff{\mathbf{x}}\right)\\
+&= 0.\tag*{\qed}
+\end{align*}
+
+c. \textit{When is $r = 0$?}
+
+$r=0$ iff $I(X,Y)=0$. We have equality in Jensen's iff the function is not strictly convex (but the logarithm \textit{is} strictly convex) or when the variable inside the function is constant, i.e.
+\begin{equation*}
+\frac{p(x)p(y)}{p(x,y)} = C
+\end{equation*}
+for all $x,y\in\mathbb{R}$. Due to normalisation, $C$ must be equal to 1, and so $r=0$ iff $p(x,y)=p(x)p(y)$, i.e. $X$ and $Y$ are independent.
+
+d. \textit{When is $r = 1$?}
+
+$r=1$ iff $H(Y|X)=0$ iff $p(x,y)=p(y)\ \forall x,y\in\mathbb{R}$, i.e. $X$ is entirely dependent (perfectly correlated with) $Y$, and vice versa.
+
+\subsection{MLE minimises KL divergence to the empirical distribution}
+Recall that the empirical distribution can be defined as
+\begin{equation*}
+p_{emp}(x) = \sum_{i=1}^N w_i\delta_{x_i}(x)
+\end{equation*}
+where we have weights $w_i$ for $N$ distinct sample values $x_i$. The KL divergence
+\begin{equation*}
+KL(p_{emp}||q) = \sum_{i=1}^N w_i \frac{w_i}{q(x_i)}
+\end{equation*}
+has a general minimum at 0 due to non-negativity, and this is attained when $q(x_i) = w_i \,\forall i$, which is the result of applying the MLE.
+
+\subsection{Mean, mode, variance for the beta distribution}
+\begin{align*}
+\mathrm{Beta}(x|a,b) &= \frac{1}{B(a,b)} x^{a-1} (1-x)^{b-1}
+\end{align*}
+We find the mean by repeatedly performing integration by parts.
+\begingroup
+\allowdisplaybreaks
+\begin{align*}
+\mathbb{E}_{a,b}[x] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a} (1-x)^{b-1} \diff{x}\\
+&= \frac{1}{B(a,b)} \left( \frac{1}{a+1} \left[ x^{a+1} (1-x)^{b-1} \right]_{0}^{1} + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \diff{x} \right)\\
+&= \frac{1}{B(a,b)} \left( 0 + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \diff{x} \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \left( 0 + \frac{b-2}{a+2} \int_{0}^{1} x^{a+2} (1-x)^{b-3} \diff{x} \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \dots \left( \frac{1}{a+b-1} \right) \int_{0}^{1} x^{a+b-1} (1-x)^{0} \diff{x}\\
+&= \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \left( \frac{\Gamma(a+1)\Gamma(b)}{\Gamma(a+b)} \right) \frac{1}{a+b}\\
+&= \frac{a}{a+b}.
+\intertext{The variance is calculated similarly.}
+\mathbb{E}_{a,b}[x^2] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a+1} (1-x)^{b-1} \diff{x}\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+2} \right) \dots \left( \frac{1}{a+b} \right) \int_{0}^{1} x^{a+b} (1-x)^{0} \diff{x}\\
+&= \frac{a(a+1)}{(a+b)(a+b+1)}\\
+\mathbb{E}_{a,b}^2[x] - \mathbb{E}_{a,b}[x^2] &= \frac{a^2}{(a+b)^2} - \frac{a+1}{a+b+1}\\
+&= \frac{a}{a+b}\left( \frac{a}{a+b} - \frac{a+1}{a+b+1} \right)\\
+&= \frac{ab}{(a+b)^2(a+b+1)}.
+\intertext{We find the mode by setting the derivative to 0.}
+0 &= \frac{d}{dx} x^{a-1}(1-x)^{b-1}\\
+&= (a-1)x^{a-2}(1-x)^{b-1} - (b-1)x^{a-1}(1-x)^{b-2}\\
+(b-1)x^{a-1}(1-x)^{b-2} &= (a-1)x^{a-2}(1-x)^{b-1}\\
+(b-1)x &= (a-1)(1-x)\\
+x &= \frac{a-1}{a+b-2}.
+\end{align*}
+\endgroup
+
+\subsection{Expected value of the minimum}
+Let $X,Y\overset{i.i.d}{\sim}U[0,1]$ and $Z = \min(X,Y)$. Normally this is done by considering the c.d.f, but since we only have 2 variables here we can do it by brute force, for the sake of variety.
+\begin{align*}
+\mathbb{E}_{X,Y}[Z] &= \int_{\mathbb{R}^2} p(x,y)\min(x,y) \diff{\mathbf{x}}\\
+&= \int_{\mathbb{R}} \int_{-\infty}^{x} p(x,y)y \diff{\mathbf{x}} + \int_{\mathbb{R}} \int_{x}^{\infty} p(x,y)x \diff{\mathbf{x}}\\
+&= \int_{0}^{1} \int_{0}^{x} y \diff{\mathbf{x}} + \int_{0}^{1} \int_{x}^{1} x \diff{\mathbf{x}}\\
+&= \int_{0}^{1} \frac{1}{2}x^2 \diff{x} + \int_{0}^{1} x(1-x) \diff{x}\\
+&= \frac{1}{3}.
+\end{align*}

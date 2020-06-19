@@ -44,7 +44,7 @@ def get_mnist():
             images_bytes = gz_file.read()
             images = np.frombuffer(images_bytes, dtype=np.uint8)
             images = np.reshape(images, (n_images, n_cols, n_rows))
-            np.save(fname, images)
+            np.save(os.path.join('data/mnist/', fname), images)
 
     print('getting labels')
     for fname, url in label_urls.items():
@@ -54,7 +54,7 @@ def get_mnist():
             magic_number, n_items = info
             labels_bytes = gz_file.read()
             labels = np.frombuffer(labels_bytes, dtype=np.uint8)
-            np.save(fname, labels)
+            np.save(os.path.join('data/mnist/', fname), labels)
 
 
 if __name__ == '__main__':
