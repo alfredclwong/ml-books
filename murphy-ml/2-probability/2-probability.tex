@@ -116,9 +116,7 @@ $(\implies).$ Suppose $p(x,y|z) = p(x|z)p(y|z)$. Let $g(x,z) = p(x|z)$ and $h(y,
 $(\impliedby).$ Suppose $p(x,y|z) = g(x,z)h(y,z)$. Then we can marginalise out $y$, say, as follows: $p(x|z) = \int p(x,y|z) dy = \int g(x,z)h(y,z) dy = g(x,z) \cdot \int h(y,z) dy$. Similarly for $x$, we have $p(y|z) = \int g(x,z) dx \cdot h(y,z)$, and so $p(x|z)p(y|z) \propto g(x,z)h(y,z) = p(x,y|z)$, since $z$ is constant.
 
 \subsection{Conditional independence}
-\textit{(Source: Koller).}
-
-\textit{Is it true that $(X \indep W | Z,Y) \land (X \indep Y | Z) \implies (X \indep Y, W | Z)$?}
+\textit{(Source: Koller). Is it true that $(X \indep W | Z,Y) \land (X \indep Y | Z) \implies (X \indep Y, W | Z)$?}
 
 \textbf{True.} Suppose $(X \indep W|Z,Y) \land (X \indep Y|Z)$. Then
 \begin{align*}
@@ -137,19 +135,18 @@ Suppose $X \sim \mathrm{Gamma}(a,b)$, $p_X(x) = \frac{b^a}{\Gamma(a)} x^{a-1} \e
 \begin{align*}
 p_Y(y) &= p_X(y^{-1})\left|\frac{d}{dy}(y^{-1})\right|\\
 &= \frac{b^a}{\Gamma(a)} y^{-a+1} \exp^{-b/y} y^{-2}\\
-&= \frac{b^a}{\Gamma(a)} y^{-a-1} \exp^{-b/y}
+&= \frac{b^a}{\Gamma(a)} y^{-a-1} \exp^{-b/y} \tag*{$\implies Y \sim \text{Inv-Gamma}(a,b)$.}
 \end{align*}
-and so $Y \sim \mathrm{Inv \mhyphen Gamma}(a,b)$.
 
 \subsection{Normalisation constant for a 1D Gaussian}
 \begin{align*}
-Z^2 &= \int_{0}^{2\pi} \int_{0}^{\infty} r \exp\left(-\frac{r^2}{2\sigma^2}\right) \diff{r} \diff{\theta}\\
+Z^2 &= \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \exp\left(-\frac{x^2+y^2}{2\sigma^2}\right) \diff x \diff y\\
+&= \int_{0}^{2\pi} \int_{0}^{\infty} r \exp\left(-\frac{r^2}{2\sigma^2}\right) \diff r \diff \theta\\
 &= 2\pi \left[-\sigma^2 \exp\left(-\frac{r^2}{2\sigma^2}\right) \right]_{0}^{\infty}\\
 &= 2\pi\sigma^2.
 \end{align*}
 
 \subsection{Expressing mutual information in terms of entropies}
-Recall the relevant definitions for entropy $H(X)$, conditional entropy $H(X|Y)$ and mutual information $I(X,Y)$.
 \begin{align*}
 H(X) &= -\sum_x p(x) \log p(x)\\
 H(X|Y) &= -\sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
@@ -157,21 +154,31 @@ I(X,Y) &= \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(x)p(y)}\\
 &= \sum_x \sum_y p(x,y) \left( -\log{p(x)} + \log\frac{p(x,y)}{p(y)} \right)\\
 &= -\sum_x \sum_y p(x,y)\log{p(x)} + \sum_x \sum_y p(x,y) \log\frac{p(x,y)}{p(y)}\\
 &= -\sum_x p(x)\log{p(x)} - H(X|Y)\\
-&= H(X) - H(X|Y).
+&= H(X) - H(X|Y)
 \end{align*}
 Similarly, $I(X,Y) = H(Y) - H(Y|X)$.
 
 \subsection{Mutual information for correlated normals}
 \textit{(Source: Cover and Thomas 1991, Q9.3). Find the mutual information $I(X_1, X_2)$, where $\mathbf{X}$ has a bivariate normal distribution}
 \begin{equation*}
-\begin{bmatrix}X_1\\X_2\end{bmatrix} \sim \mathcal{N}\left(\mathbf{0}, \begin{bmatrix}\sigma^2&\rho\sigma^2\\\rho\sigma^2&\sigma^2\end{bmatrix}\right).
+\begin{bmatrix}X_1\\X_2\end{bmatrix} \sim \mathcal{N}\left(\mathbf{0},\ \begin{bmatrix}\sigma^2&\rho\sigma^2\\\rho\sigma^2&\sigma^2\end{bmatrix}\right).
 \end{equation*}
+
+First, we evaluate
+\begin{align*}
+H(\mathbf{X}) &= -\int_{\mathbb{R}^d} p(\mathbf{x})\log_2p(\mathbf{x}) \diff \mathbf{x}\\
+&= -\int_{\mathbb{R}^d} \frac{1}{\sqrt{(2\pi)^d|\mathbf{\Sigma}|}} \exp\left(-\frac{1}{2}\mathbf{x}^T\mathbf{\Sigma}\mathbf{x}\right) \left(-\frac{1}{2}\log_2\left((2\pi)^d|\mathbf{\Sigma}|\right)-\frac{1}{2}\mathbf{x}^T\mathbf{\Sigma}\mathbf{x}\log_2e\right) \diff \mathbf{x}\\
+&= \frac{1}{2}\log_2\left((2\pi)^d|\mathbf{\Sigma}|\right) + \frac{\log_2e}{\sqrt{(2\pi)^d|\mathbf{\Sigma}|}} \int_{\mathbb{R}^d} \frac{1}{2}\mathbf{x}^T\mathbf{\Sigma}\mathbf{x} \exp\left(-\frac{1}{2}\mathbf{x}^T\mathbf{\Sigma}\mathbf{x}\right) \diff \mathbf{x}\\
+&= \frac{1}{2}\log_2\left((2\pi)^d|\mathbf{\Sigma}|\right) + \frac{\log_2e}{\sqrt{(2\pi)^d|\mathbf{\Sigma}|}} \int_{\mathbb{R}^d} \frac{1}{2}\nabla\cdot\mathbf{x} \exp\left(-\frac{1}{2}\mathbf{x}^T\mathbf{\Sigma}\mathbf{x}\right) \diff \mathbf{x} \tag{by div thm, since the $\oint=0$}\\
+&= \frac{1}{2}\log_2\left((2\pi e)^d|\mathbf{\Sigma}|\right).
+\end{align*}
+It follows that
 \begin{align*}
 I(X_1, X_2) &= \mathbb{E}_{\mathbf{X}}\left[ \log\frac{p(\mathbf{x})}{p(x_1)p(x_2)} \right]\\
 &= \mathbb{E}_{\mathbf{X}}[\log{p(\mathbf{x})} - \log{p(x_1)} - \log{p(x_2)}]\\
 &= -H(\mathbf{X}) + H(X_1) + H(X_2)\\
-&= -\frac{1}{2}\log_2\left((2\pi e)^2\det\Sigma\right) + \log_2\left(2\pi e\sigma^2\right)\\
-&= \log_2\left(\frac{\sigma^2}{\sqrt{\det\Sigma}}\right)\\
+&= -\frac{1}{2}\log_2\left((2\pi e)^2|\mathbf\Sigma|\right) + \log_2\left(2\pi e\sigma^2\right)\\
+&= -\frac{1}{2}\log_2\left(\frac{|\mathbf\Sigma|}{\sigma^4}\right)\\
 &= -\frac{1}{2}\log_2(1-\rho^2).
 \end{align*}
 Hence, when $\rho = 0$, $I(X_1,X_2) = 0$, and when $\rho^2 = 1$, $I(X_1,X_2) = \infty$. Intuitively, there is no mutual information between $X_1$ and $X_2$ when they are independent, and vice versa.
@@ -193,13 +200,13 @@ Entropy is non-negative, so $r \leq 1$. From the above, we can also see that if 
 \begin{align*}
 I(X,Y) &= \mathbb{E}_{X,Y}\left[-\log\frac{p(x)p(y)}{p(x,y)}\right]\\
 &\geq -\log\mathbb{E}_{X,Y}\left[\frac{p(x)p(y)}{p(x,y)}\right]\tag{Jensen's}\\
-&= -\log\left(\int_{\mathbb{R}^2}p(x,y)\frac{p(x)p(y)}{p(x,y)}\diff{\mathbf{x}}\right)\\
+&= -\log\left(\int_{\mathbb{R}^2}p(x,y)\frac{p(x)p(y)}{p(x,y)}\diff \mathbf{x} \right)\\
 &= 0.\tag*{\qed}
 \end{align*}
 
 c. \textit{When is $r = 0$?}
 
-$r=0$ iff $I(X,Y)=0$. We have equality in Jensen's iff the function is not strictly convex (but the logarithm \textit{is} strictly convex) or when the variable inside the function is constant, i.e.
+$r=0$ iff $I(X,Y)=0$. We have equality in Jensen's iff the function is not strictly convex (but the logarithm \textit{is} strictly convex) or when the variable inside the function is constant:
 \begin{equation*}
 \frac{p(x)p(y)}{p(x,y)} = C
 \end{equation*}
@@ -228,16 +235,16 @@ We find the mean by repeatedly performing integration by parts.
 \begingroup
 \allowdisplaybreaks
 \begin{align*}
-\mathbb{E}_{a,b}[x] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a} (1-x)^{b-1} \diff{x}\\
+\mathbb{E}_{a,b}[x] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a} (1-x)^{b-1} \diff x\\
 &= \frac{1}{B(a,b)} \left( \frac{1}{a+1} \left[ x^{a+1} (1-x)^{b-1} \right]_{0}^{1} + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \diff{x} \right)\\
-&= \frac{1}{B(a,b)} \left( 0 + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \diff{x} \right)\\
-&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \left( 0 + \frac{b-2}{a+2} \int_{0}^{1} x^{a+2} (1-x)^{b-3} \diff{x} \right)\\
-&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \dots \left( \frac{1}{a+b-1} \right) \int_{0}^{1} x^{a+b-1} (1-x)^{0} \diff{x}\\
+&= \frac{1}{B(a,b)} \left( 0 + \frac{b-1}{a+1} \int_{0}^{1} x^{a+1} (1-x)^{b-2} \diff x \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \left( 0 + \frac{b-2}{a+2} \int_{0}^{1} x^{a+2} (1-x)^{b-3} \diff x \right)\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+1} \right) \dots \left( \frac{1}{a+b-1} \right) \int_{0}^{1} x^{a+b-1} (1-x)^{0} \diff x\\
 &= \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \left( \frac{\Gamma(a+1)\Gamma(b)}{\Gamma(a+b)} \right) \frac{1}{a+b}\\
 &= \frac{a}{a+b}.
 \intertext{The variance is calculated similarly.}
-\mathbb{E}_{a,b}[x^2] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a+1} (1-x)^{b-1} \diff{x}\\
-&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+2} \right) \dots \left( \frac{1}{a+b} \right) \int_{0}^{1} x^{a+b} (1-x)^{0} \diff{x}\\
+\mathbb{E}_{a,b}[x^2] &= \frac{1}{B(a,b)} \int_{0}^{1} x^{a+1} (1-x)^{b-1} \diff x\\
+&= \frac{1}{B(a,b)} \left( \frac{b-1}{a+2} \right) \dots \left( \frac{1}{a+b} \right) \int_{0}^{1} x^{a+b} (1-x)^{0} \diff x\\
 &= \frac{a(a+1)}{(a+b)(a+b+1)}\\
 \mathbb{E}_{a,b}^2[x] - \mathbb{E}_{a,b}[x^2] &= \frac{a^2}{(a+b)^2} - \frac{a+1}{a+b+1}\\
 &= \frac{a}{a+b}\left( \frac{a}{a+b} - \frac{a+1}{a+b+1} \right)\\
@@ -254,9 +261,9 @@ x &= \frac{a-1}{a+b-2}.
 \subsection{Expected value of the minimum}
 Let $X,Y\overset{i.i.d}{\sim}U[0,1]$ and $Z = \min(X,Y)$. Normally this is done by considering the c.d.f, but since we only have 2 variables here we can do it by brute force, for the sake of variety.
 \begin{align*}
-\mathbb{E}_{X,Y}[Z] &= \int_{\mathbb{R}^2} p(x,y)\min(x,y) \diff{\mathbf{x}}\\
-&= \int_{\mathbb{R}} \int_{-\infty}^{x} p(x,y)y \diff{\mathbf{x}} + \int_{\mathbb{R}} \int_{x}^{\infty} p(x,y)x \diff{\mathbf{x}}\\
-&= \int_{0}^{1} \int_{0}^{x} y \diff{\mathbf{x}} + \int_{0}^{1} \int_{x}^{1} x \diff{\mathbf{x}}\\
-&= \int_{0}^{1} \frac{1}{2}x^2 \diff{x} + \int_{0}^{1} x(1-x) \diff{x}\\
+\mathbb{E}_{X,Y}[Z] &= \int_{\mathbb{R}^2} p(x,y)\min(x,y) \diff \mathbf{x}\\
+&= \int_{\mathbb{R}} \int_{-\infty}^{x} p(x,y)y \diff \mathbf{x} + \int_{\mathbb{R}} \int_{x}^{\infty} p(x,y)x \diff \mathbf{x}\\
+&= \int_{0}^{1} \int_{0}^{x} y \diff \mathbf{x} + \int_{0}^{1} \int_{x}^{1} x \diff \mathbf{x}\\
+&= \int_{0}^{1} \frac{1}{2}x^2 \diff x + \int_{0}^{1} x(1-x) \diff x\\
 &= \frac{1}{3}.
 \end{align*}
