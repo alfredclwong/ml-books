@@ -1,10 +1,12 @@
 \section{Generative models for discrete data}
-Warning: really boring.
+% Warning: really boring.
 \subsection{MLE for the Bernoulli/binomial model}
+The likelihood $L$ and log-likelihood $l$ for the Bernoulli/binomial model are given by
 \begin{align*}
 L(\theta|\mathcal{D}) &= p(\mathcal{D}|\theta)\\
 &= \theta^{N_1} (1-\theta)^{N_0}\\
-l(\theta|\mathcal{D}) &= N_1\log\theta + N_0\log(1-\theta)\\
+l(\theta|\mathcal{D}) &= N_1\log\theta + N_0\log(1-\theta)
+\intertext{and so we find the MLE $\hat\theta$ by setting the derivative to 0:}
 0 &= \frac{dl}{d\theta}\bigg|_{\theta=\hat\theta}\\
 &= \frac{N_1}{\hat\theta} - \frac{N_0}{1-\hat\theta}\\
 \hat\theta &= \frac{N_1}{N_1+N_0}.
@@ -19,158 +21,293 @@ p(D) &= \frac{[(\alpha_1)\dots(\alpha+N_1-1)] [(\alpha_0)\dots(\alpha_0+N_0-1)]}
 
 \subsection{Posterior predictive for the Beta-Binomial model}
 \begin{align*}
-p(\tilde{x}=1|n=1,D) &= \frac{B(1+\alpha_1', \alpha_0')}{B(\alpha_1',\alpha_0')} {1\choose 1}\\
-&= \frac{\frac{\Gamma(1+\alpha_1')\Gamma(\alpha_0')}{\Gamma(1+\alpha_1'+\alpha_0')}} {\frac{\Gamma(\alpha_1')\Gamma(\alpha_0')}{\Gamma(\alpha_1'+\alpha_0')}}\\
+p(\tilde{x}=1|n=1,D) &= \frac{B(1+\alpha_1', 1-1+\alpha_0')}{B(\alpha_1',\alpha_0')} {1\choose 1}\\
+&= \frac{\Gamma(1+\alpha_1')\Gamma(\alpha_0')}{\Gamma(1+\alpha_1'+\alpha_0')} \bigg/ \frac{\Gamma(\alpha_1')\Gamma(\alpha_0')}{\Gamma(\alpha_1'+\alpha_0')}\\
+&= \frac{\Gamma(1+\alpha_1')}{\Gamma(\alpha_1')} \frac{\Gamma(\alpha_1'+\alpha_0')}{\Gamma(1+\alpha_1'+\alpha_0')}\\
 &= \frac{\alpha_1'}{\alpha_1'+\alpha_0'}
 \end{align*}
 
 \subsection{Beta updating from censored likelihood}
-(Source: Gelman). Suppose we toss a coin $n=5$ times. Let X be the number of heads. Given the prior probability of heads $p(\theta) = \mathrm{Beta}(\theta|1,1)$ and that $X<3$,
+\textit{(Source: Gelman). Suppose we toss a coin $n=5$ times. Let X be the number of heads. Given that the prior probability of heads $p(\theta) = \text{Beta}(\theta|1,1)$ and that $X<3$, compute the posterior up to normalisation constants.}
+
 \begin{align*}
-p(\theta|X<3) &\propto p(X<3|\theta)p(\theta)\\
-&= \sum_{x=0}^2 p(X=x|\theta)p(\theta)\\
-&= \sum_{x=0}^2 \mathrm{Beta}(1+x,1)
+p(\theta|X<3, n=5) &\propto p(X<3, n=5|\theta)p(\theta)\\
+&= \sum_{x=0}^2 p(X=x, n=5|\theta)p(\theta)\\
+&= \sum_{x=0}^2 \mathrm{Beta}(1+x,1+n-x).
 \end{align*}
+Note that $p(\theta) = \text{Beta}(\theta|1,1) = 1$, so in the prior $\theta \sim U[0,1]$. This means that we can also answer in terms of a mixture of binomials.
 
 \subsection{Uninformative prior for log-odds ratio}
+\textit{Let $\phi = \text{logit}(\theta) = \log\frac{\theta}{1-\theta}$. Show that if $p(\phi) \propto 1$, then $p(\theta) \propto \text{Beta}(\theta|0,0)$.}
+
 \begin{align*}
 p_\Theta(\theta) &= p_\Phi\left(\log\frac{\theta}{1-\theta}\right) \left|\frac{d}{d\theta}\log\frac{\theta}{1-\theta}\right|\\
 &\propto \frac{1-\theta}{\theta} \frac{1}{(1-\theta)^2}\\
-&= \frac{1}{\theta(1-\theta)}
+&= \frac{1}{\theta(1-\theta)}.
 \end{align*}
 
 \subsection{MLE for the Poisson distribution}
 \begin{align*}
 \mathcal{L}(\lambda|x) &= e^{-\lambda}\frac{\lambda^x}{x!}\\
-l(\lambda|x) &= -\lambda + x\log\lambda + const.\\
+l(\lambda|x) &= -\lambda + x\log\lambda + \text{const.}\\
 \frac{dl}{d\lambda} &= -1 + \frac{x}{\lambda}\\
 \hat\lambda &= x
 \end{align*}
 
 \subsection{Bayesian analysis of the Poisson distribution}
+\textit{For a Poisson model $p(D | \lambda)$ with rate $\lambda$, assuming a conjugate prior $p(\lambda) = \text{Ga}(\lambda| a, b) \propto \lambda^{a-1}e^{-\lambda b}$, derive the posterior $p(\lambda | D)$.}
+
 \begin{align*}
 p(\lambda|D) &\propto p(D|\lambda)p(\lambda)\\
-&= e^{-\lambda}\frac{\lambda^x}{x!}\lambda^{a-1}e^{-\lambda b}\\
-&\propto \lambda^{a+x-1}e^{-\lambda(b+1)}
+&\propto e^{-\lambda}\lambda^x\lambda^{a-1}e^{-\lambda b}\\
+&= \lambda^{a+x-1}e^{-\lambda(b+1)}
 \end{align*}
 So the posterior is distributed as $\mathrm{Gamma}(\lambda|a+x,b+1)$. The posterior mean $\frac{a+x}{b+1} \rightarrow x = \hat\lambda$ as $a\rightarrow0,\,b\rightarrow0$.
 
 \subsection{MLE for the uniform distribution}
-(Source: Kaelbling). Consider $X \sim U[-a,a]$, such that
-\begin{align*}
-p(x) &= \frac{1}{2a}I(x\in[-a,a])
-\end{align*}
-a. $\mathcal{L}(a|\{x_1,\dots,x_n\}) = \prod_{i=1}^{n}\frac{1}{2a}I(x_i\in[-a,a])$ so $\hat\alpha=\max(|x_1|,\dots,|x_n|)$\\\\
-b. $p(x_{n+1}|\hat\alpha) = \frac{1}{2\hat\alpha}I(x_{n+1}\in[-\hat\alpha, \hat\alpha])$\\\\
-c. This approach has a `black swan' problem, assigning zero chance to data points outside the training data. We could instead use a high variance Gaussian prior, or a Pareto prior. Or, we could try to ensure that all data is normalised within a set range.
+\textit{(Source: Kaelbling). Consider $X \sim U[-a,a]$.}
+
+a. \textit{Given a data set $x_1, \dots, x_n$, what is the maximum likelihood estimate of $a$?}
+
+$\mathcal{L}(a|\{x_1,\dots,x_n\}) = \prod_{i=1}^{n}\frac{1}{2a}I(x_i\in[-a,a])$, so $\hat\alpha=\max(|x_1|,\dots,|x_n|)$.
+
+b. \textit{What probability would the model assign to a new data point $x_{n+1}$ using $\hat{a}$?}
+
+$p(x_{n+1}|\hat\alpha) = \frac{1}{2\hat\alpha}I(x_{n+1}\in[-\hat\alpha, \hat\alpha])$.
+
+c. \textit{Do you see any problem with the above approach? Briefly suggest a better approach.}
+
+This approach has a `black swan' problem, assigning zero chance to data points outside the training data. We could instead use a high variance Gaussian prior, or a Pareto prior. Or, we could try to ensure that all data is normalised within a set range.
 
 \subsection{Bayesian analysis of the uniform distribution}
+As suggested above, using a Pareto prior
+\begin{align*}
+p(\theta) &= \text{Pareto}(\theta | K, b)\\
+&= Kb^K\theta^{-(K+1)}\mathbb{I}(\theta\geq b)
+\end{align*}
+for non-negative data $\mathcal{D} = (x_1, \dots, x_N)$ modeled by a Uniform distribution $U[0, \theta]$ leads to the joint distribution
+\begin{align*}
+p(\mathcal{D}, \theta) &= p(\mathcal{D} | \theta) p(\theta)\\
+&= \left(\prod_{i=1}^N \frac{1}{\theta} \mathbb{I}(x_i \leq \theta)\right) Kb^K\theta^{-(K+1)}\mathbb{I}(\theta\geq b)\\
+&= \frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta \geq \max(m, b))
+\end{align*}
+where $m = \max(\mathcal{D})$. The evidence (the probability that all $N$ samples came from the same uniform distribution) is
+\begin{align*}
+p(\mathcal{D}) &= \int_{\max(m,b)}^\infty \frac{Kb^K}{\theta^{N+K+1}} \diff \theta\\
+&= \begin{cases}
+\frac{K}{(N+K)b^N} &\text{if $m \leq b$}\\
+\frac{Kb^K}{(N+K)m^{N+K}} &\text{if $m > b$}
+\end{cases}
+\end{align*}
+and so the posterior is equal to
 \begin{align*}
 p(\theta|\mathcal{D}) &= \frac{p(\mathcal{D},\theta)}{p(\mathcal{D})}\\
-&= \begin{cases}
-\frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq b) \frac{(N+K)b^N}{K} &\text{if $m\leq b$}\\
-\frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq m) \frac{(N+K)m^{N+K}}{Kb^K} &\text{if $m\geq b$}
-\end{cases}\\
+% &= \begin{cases}
+% \frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq b) \frac{(N+K)b^N}{K} &\text{if $m\leq b$}\\
+% \frac{Kb^K}{\theta^{N+K+1}} \mathbb{I}(\theta\geq m) \frac{(N+K)m^{N+K}}{Kb^K} &\text{if $m>b$}
+% \end{cases}\\
 &= \begin{cases}
 (N+K)b^{N+K}\theta^{-(N+K+1)}\mathbb{I}(\theta\geq b) &\text{if $m\leq b$}\\
 (N+K)m^{N+K}\theta^{-(N+K+1)}\mathbb{I}(\theta\geq m) &\text{if $m\geq b$}
 \end{cases}\\
-&= \mathrm{Pareto}(\theta|\max(m,b),\,N+K)
+&= \mathrm{Pareto}(\theta|N+K, \max(m,b)).
 \end{align*}
+Hence, the Pareto distribution serves as a conjugate prior for the Uniform distribution.
 
 \subsection{Taxicab (tramcar) problem}
-a. We have $m=100,\, b=0,\, N=1,\, K=0$ so $p(\theta|D) = \mathrm{Pareto}(\theta|100, 1)$.\\\\
-b. $\mathrm{mean} = \infty$, $\mathrm{mode} = 100$, $\mathrm{median} = 200$.\\\\
-c. $p(D'=\{x\}|m,N) = \frac{N}{(1+N)m}$ if $x\leq m$ otherwise $\frac{Nm^N}{(1+N)x^{1+N}}$. We have $D=\{100\}$, so $m=100,\,N=1$, and
+\textit{Suppose you arrive in a new city and see a taxi numbered 100. How many taxis are there in this city?}
+
+a. Assuming that taxis are numbered sequentially from 0, and that the observed dataset $\mathcal{D} = \{100\}$ was drawn uniformly from $U[0, \theta]$, where the number of taxis $\theta$ has a prior distribution $p(\theta) = \text{Pareto}(\theta|0,0)$, ignoring continuity issues, we have $N=1$, $K=0$, $m=100$, $b=0$, using the same notation as above, so $p(\theta|\mathcal{D}) = \mathrm{Pareto}(\theta|1,100)$.
+
+b. This gives us the point estimates: $\mathrm{mean} = \infty$, $\mathrm{mode} = 100$, $\mathrm{median} = 200$.
+
+c. Instead of point estimates, we can find the predictive posterior
 \begin{align*}
-p(x|D,\alpha) &= \begin{cases}
-\frac{1}{200} &\text{if $x\leq100$}\\
-\frac{50}{x^{2}} &\text{otherwise}
+p(\mathcal{D}'|\mathcal{D}) &= \int_\mathbb{R} p(\mathcal{D}'|\theta)p(\theta|\mathcal{D}) \diff \theta\\
+&= \begin{cases}
+\frac{N+K}{(N'+N+K)\max(m,b)^{N'}} &\text{if $m'\leq\max(m,b)$}\\
+\frac{(N+K)\max(m,b)^{N+K}}{(N'+N+K)m'^{N'+N+K}} &\text{if $m'>\max(m,b)$}
 \end{cases}
-\end{align*}\\\\
-d. $100:\,\frac{1}{200};\,50:\,\frac{1}{200};\,150:\,\frac{1}{450}$.\\\\
-e. The distribution should not be supported below $m$. Could use statistics beyond just the max: if many high numbers are seen it is likelier that the answer is higher. Could also start with an initial prior dataset, which assumes a certain number of taxicabs to start with.
+\end{align*}
+Plugging in our data and parameters, we have $N=1$, $K=0$, $m=100$, $b=0$ from before, and now also $\mathcal{D}'=\{100\}$, so $N'=1$, $m'=x$. Thus
+\begin{align*}
+p(\mathcal{D}'=\{x\}|\mathcal{D}=\{100\},K=0,b=0) &= \begin{cases}
+\frac{1}{200} &\text{if $x\leq100$}\\
+\frac{50}{x^2} &\text{if $x>100$}
+\end{cases}
+\end{align*}
+
+d. Seriously?
+
+e. In order to improve this prediction, we could use a better prior. At the very least, we expect there to be at least 1 taxi in the city, which is not reflected in $\text{Pareto}(0,0)$. More fundamentally, the underlying data would be better reflected by a discrete model. Anecdotally, a similar problem arose in WWII where German tank production was estimated from a captured sample of tanks with sequential serial numbers.
 
 \subsection{Bayesian analysis of the exponential distribution}
-a. $\mathcal{L}(\theta|x) = \prod_{i=1}^N \theta e^{-\theta x_i}$, $\frac{d\mathcal{L}}{d\theta} = \sum_{i=1}^N (1-\theta x_i)e^{-\theta x_i}$, $0 = \sum_{i=1}^N 1-\hat\theta x_i = N - N\hat\theta \bar{x}$, $\hat\theta = 1/\bar{x}$.\\\\
-b. 5 years.\\\\
-c. $p(\theta) = \mathrm{Exp}(\theta|\lambda) = \mathrm{Gamma}(\theta|1, \lambda)$, so $\mathbb{E}[\theta] = \frac{1}{\lambda}$ and $\hat\lambda = 3$.\\\\
-d. $p(\theta|\mathcal{D}, \hat\lambda) \propto p(\mathcal{D}|\theta,\hat\lambda)p(\theta|\hat\lambda) = \left(\prod_{i=1}^N \theta e^{-\theta x_i}\right) \hat\lambda e^{-\hat\lambda\theta} \propto \theta^N e^{-(N\bar{x}+\hat\lambda)\theta} \propto \mathrm{Gamma}(N+1, N\bar{x}+\hat\lambda)$.\\\\
-e. Sort of. The Gamma prior $p(\theta) = \mathrm{Exp}(\theta|\lambda) = \mathrm{Gamma}(\theta|1, \lambda)$ is conjugate to the exponential likelihood.\\\\
-f. $\mathbb{E}[\theta|\mathcal{D},\hat\lambda] = \frac{N+1}{N\bar{x}+\hat\lambda}$.\\\\
+\textit{A lifetime $X$ of a machine is modeled by an exponential distribution with unkown parameter $\theta$. The likelihood is $p(x|\theta) = \theta e^{-\theta x}$ for $x\geq0$, $\theta>0$.}
+
+a. $\mathcal{L}(\theta|\mathbf{x}) = \prod_{i=1}^N \theta e^{-\theta x_i}$, $\frac{\diff\mathcal{L}}{\diff\theta} = (N/\theta-\sum_{i=1}^Nx_i)\theta^Ne^{-\theta x_i}$, $0 = N/\hat\theta - N\bar{x}$, $\hat\theta = 1/\bar{x}$.
+
+b. For $\mathbf{x}=\{5,6,4\}$, we have $\hat\theta=1/5$.
+
+c. Using an exponential prior, $p(\theta) = \text{Exp}(\theta|\lambda) = \text{Gamma}(\theta|1, \lambda)$, so $\mathbb{E}[\theta] = \frac{1}{\lambda}$, $\hat\lambda = 3$.
+
+d. The posterior $p(\theta|\mathbf{x}, \hat\lambda) \propto p(\mathbf{x}|\theta,\hat\lambda)p(\theta|\hat\lambda) = \left(\prod_{i=1}^N \theta e^{-\theta x_i}\right) \hat\lambda e^{-\hat\lambda\theta} \propto \theta^N e^{-(N\bar{x}+\hat\lambda)\theta} \propto \text{Gamma}(N+1, N\bar{x}+\hat\lambda)$.
+
+e. The exponential prior acts as conjugate to the exponential likelihood. More generally, any Gamma prior is conjugate. In this case, $p(\theta) = \mathrm{Exp}(\theta|\lambda) = \mathrm{Gamma}(\theta|1, \lambda)$.
+
+f. The posterior mean $\mathbb{E}[\theta|\mathbf{x},\hat\lambda] = \frac{N+1}{N\bar{x}+\hat\lambda}$.
+
 g. The posterior mean tends to the MLE as $N\rightarrow\infty$ but is equal to the prior mean when $N=0$. Like every single other Bayesian analysis.
 
 \subsection{MAP estimation for the Bernoulli with non-conjugate priors}
-(Source: Jaakkola).\\\\
-a. $p(\theta|N_1, N) \propto p(N_1, N|\theta)p(\theta) \propto \theta^{N_1}(1-\theta)^{N-N_1} (\delta(\theta-0.5)+\delta(\theta-0.4))$, so $\mathrm{MAP} = \argmax_{\theta\in\{0.5,0.4\}} \theta^{N_1}(1-\theta)^{N-N_1}$. Observe that $0.5^N > 0.6^{N_1}0.4^{N-N_1} \iff N\log0.5 > N_1\log0.6 + (N-N_1)\log0.4 \iff \frac{N_1}{N} > \frac{\log1.25}{\log1.5}$, and so $\mathrm{MAP} = 0.5$ if $\frac{N_1}{N} > \frac{\log1.25}{\log1.5} \approx 0.55$, otherwise $0.4$.\\\\
-b. When $N$ is large, the more generic Beta prior will allow a more accurate value of the true parameter to be found. However, this takes longer to achieve, whereas the tailored prior will more quickly reach $\theta = 0.4$ and stay there, even for small $N$. We could possibly calculate probabilities for these occurrences but I really don't want to do this anymore.
+\textit{(Source: Jaakkola). The conjugate prior for a Bernoulli distribution is $p(\theta) = \text{Beta}(\theta|\alpha,\beta)$, which gives an MAP estimate of}
+\begin{align*}
+\hat\theta &= \frac{N_1+\alpha-1}{N+\alpha+\beta-2}
+\end{align*}
+\textit{where $N_1$ is the number of heads, $N_0$ is the number of tails, and $N=N_0+N_1$ is the total number of trials.}
+
+a. \textit{Consider instead the non-conjugate prior}
+\begin{align*}
+p(\theta) &= \begin{cases}
+0.5 &\text{if $\theta=0.5$}\\
+0.5 &\text{if $\theta=0.4$}\\
+0   &\text{otherwise}
+\end{cases}
+\end{align*}
+\textit{which asserts that the coin is either fair or slightly biased towards tails. Derive the MAP.}
+
+The posterior
+\begin{align*}
+p(\theta|N_1, N) &\propto p(N_1, N|\theta)p(\theta)\\
+&\propto \theta^{N_1}(1-\theta)^{N-N_1} (\delta(\theta-0.5)+\delta(\theta-0.4))
+\end{align*}
+so the $\text{MAP} = \argmax_{\theta\in\{0.5,0.4\}} \theta^{N_1}(1-\theta)^{N-N_1}$. Observe that
+\begin{align*}
+0.5^N > 0.4^{N_1}0.6^{N-N_1} &\iff N\log0.5 > N_1\log0.4 + (N-N_1)\log0.6\\
+&\iff N\log\frac{0.5}{0.6} > N_1\log\frac{0.4}{0.6}\\
+&\iff \frac{N_1}{N} > \frac{\log(5/6)}{\log(2/3)}
+\end{align*}
+and so $\mathrm{MAP} = 0.5$ if $\frac{N_1}{N} > \frac{\log(5/6)}{\log(2/3)} \approx 0.45$, otherwise $0.4$. This is pretty expected.
+
+b. \textit{Suppose the true parameter is $\theta=0.41$. Which prior leads to a better estimate when $N$ is small? Which prior leads to a better estimate when $N$ is large?}
+
+When $N$ is large, the more generic conjugate Beta prior will allow a more accurate value of the true parameter to be found. However, this takes longer to achieve, whereas the tailored prior will quickly settle at $\theta = 0.4$ and stay there, even for small $N$.
 
 \subsection{Posterior predictive distribution for a batch of data with the Dirichlet-multinomial model}
+\textit{Suppose we model a batch of data $\mathcal{D}=\{X_1,\dots,X_N\}$ with $X_i\in{\{1,\dots,K\}}$ using a multinomial distribution}
+\begin{align*}
+p(\bm{N}; \bm{p}) &= \frac{N!}{N_1!\dots N_K!} \times p_1^{N_1} \times \dots \times p_K^{N_K}\\
+&= \frac{N!}{\prod_k N_k!} \prod_k p_k^{N_k}
+\end{align*}
+\textit{where $N_k=\sum_i\mathbb{I}(X_i=k)$ and $N=\sum_kN_k$. The conjugate prior is the Dirichlet distribution}
+\begin{align*}
+p(\bm{p};\bm\alpha) &= \frac{1}{B(\bm\alpha)} \prod_k p_k^{\alpha_k-1}\\
+&= \frac{\Gamma(\alpha)}{\prod_k \Gamma(\alpha_k)} \prod_k p_k^{\alpha_k-1}
+\end{align*}
+\textit{where $\alpha=\sum_k\alpha_k$. This leads to the marginal likelihood}
+\begin{align*}
+p(\bm{N}|\bm\alpha) &= \int p(\bm{N}|\bm{p}) p(\bm{p}|\bm\alpha) \diff\bm{p}\\
+&= \frac{N!}{\prod_k N_k!} \frac{\Gamma(\alpha)}{\prod_k \Gamma(\alpha_k)} \int_{(0,1)^K} \prod_k p_k^{N_k+\alpha_k-1} \diff\bm{p}\\
+&= \frac{N!}{\prod_k N_k!} \frac{\Gamma(\alpha)}{\prod_k \Gamma(\alpha_k)} \frac{\prod_k \Gamma(N_k+\alpha_k)}{\Gamma(N+\alpha)}\\
+&= {N \choose N_1,\dots,N_K} \frac{B(\bm{N}+\bm\alpha)}{B(\bm\alpha)}.
+\end{align*}
+\textit{Given a new batch $\tilde{\mathcal{D}} = \{\tilde{X}_1,\dots,\tilde{X}_{\tilde{N}}\}$, find the predictive posterior $p(\tilde{\mathcal{D}}|\mathcal{D},\bm\alpha)$.}
+
+First, we note that the original question in the book omits the multinomial factor ${N \choose N_1,\dots,N_K}$. This corresponds to predicting $\tilde{\mathcal{D}}$ rather than $\bm{\tilde{N}}$, where \textbf{order matters} in the former. Thus
 \begin{align*}
 p(\tilde{\mathcal{D}}|\mathcal{D},\bm\alpha) &= \frac{p(\tilde{\mathcal{D}},\mathcal{D}|\bm\alpha)}{p(\mathcal{D}|\bm\alpha)}\\
-&= \frac{
-	\frac{\Gamma(\alpha)}{\Gamma(N^{new}+N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{new}+N_k^{old}+\alpha_k)}{\Gamma(\alpha_k)}
-}{
-	\frac{\Gamma(\alpha)}{\Gamma(N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{old}+\alpha_k)}{\Gamma(\alpha_k)}
-}\\
-&= \frac{\Gamma(N^{old}+\alpha)}{\Gamma(N^{new}+N^{old}+\alpha)} \prod_{k} \frac{\Gamma(N_k^{new}+N_k^{old}+\alpha_k)}{\Gamma(N_k^{old}+\alpha_k)}\\
-&= \frac{B(\mathbf{N}^{new}+\mathbf{N}^{old}+\bm\alpha)}{B(\mathbf{N}^{old}+\bm\alpha)}
+&= \frac{\frac{B(\bm{\tilde{N}}+\bm{N}+\bm\alpha)}{B(\bm\alpha)}}{\frac{B(\bm{N}+\bm\alpha)}{B(\bm\alpha)}}\\
+&= \frac{B(\mathbf{\tilde{N}}+\mathbf{N}+\bm\alpha)}{B(\mathbf{N}+\bm\alpha)}.
 \end{align*}
 
-It is important to note here that while the counts $\mathbf{N}^{old}$ and $\mathbf{N}^{new}$ are sufficient statistics, we are still predicting $p(\tilde{\mathcal{D}})$ rather than $p(\mathbf{N}^{new})$. The distinction here is that \textbf{order matters} in the former - otherwise, we need to multiply the pdf by a multinomial factor to account for the number of ways in which the counts can be achieved.
-
 \subsection{Posterior predictive for Dirichlet-multinomial}
-(Source: Koller).\\\\
-a. $p(x_{2001}=e|\mathcal{D}) = \frac{260+10}{2000+270} = \frac{27}{227} \approx 12\%.$\\\\
-b. $p(x_{2001}=p,x_{2002}=a|\mathcal{D}) = p(x_{2001}=p|\mathcal{D})p(x_{2002}=a|x_{2001}=p,\mathcal{D}) = \left(\frac{87+10}{2000+270}\right) \left(\frac{100+10}{2001+270}\right) \approx 0.21\%.$
+\textit{(Source: Koller).}
+
+a. \textit{Suppose we compute the empirical distribution over letters of the Roman alphabet plus the space character (27 characters) from 2000 samples. Suppose we see the letter ``e'' 260 times. What is $p(x_{2001}=e|\mathcal{D})$, if we assume $\bm\theta\sim\text{Dir}(\alpha_1,\dots,\alpha_{27})$, where $\alpha_k=10$ for all $k$?}
+\begin{align*}
+p(x_{2001}=e|\mathcal{D}) = \frac{260+10}{2000+270} = \frac{27}{227} \approx 12\%
+\end{align*}
+
+b. \textit{We also saw ``a'' 100 times and ``p'' 87 times. Find $p(x_{2001}=p,x_{2002}=a|\mathcal{D})$.}
+\begin{align*}
+p(x_{2001}=p,x_{2002}=a|\mathcal{D}) &= p(x_{2001}=p|\mathcal{D})p(x_{2002}=a|x_{2001}=p,\mathcal{D})\\
+&= \left(\frac{87+10}{2000+270}\right) \left(\frac{100+10}{2001+270}\right)\\
+&\approx 0.21\%.
+\end{align*}
 
 \subsection{Setting the beta hyper-parameters}
+\textit{Suppose $\theta\sim\beta(\alpha_1,\alpha_2)$ and we believe that $\mathbb{E}[\theta]=m$ and $\text{Var}[\theta]=v$. Solve for $\alpha_1$ and $\alpha_2$ in terms of $m$ and $v$. What values do you get if $m=0.7$ and $v=0.2$?}
+                                                                                                                                                                                                                                                                                                       
 \begin{align*}
 m &= \frac{\alpha_1}{\alpha_1+\alpha_2}\\
-v &= \frac{\alpha_1\alpha_2}{(\alpha_1+\alpha_2)^2(\alpha_1+\alpha_2+1)}\\
+\therefore\ \ v &= \frac{\alpha_1\alpha_2}{(\alpha_1+\alpha_2)^2(\alpha_1+\alpha_2+1)}\\
 &= \frac{m(1-m)}{\alpha_1/m+1}\\
-\frac{\alpha_1}{m}+1 &= \frac{m(1-m)}{v}\\
-\alpha_1 &= m\left(\frac{m(1-m)}{v}-1\right)\\
-\alpha_2 &= (1-m)\left(\frac{m(1-m)}{v}-1\right)
+\therefore\ \ \frac{\alpha_1}{m}+1 &= \frac{m(1-m)}{v}\\
+\therefore\ \ \alpha_1 &= m\left(\frac{m(1-m)}{v}-1\right)\\
+\therefore\ \ \alpha_2 &= (1-m)\left(\frac{m(1-m)}{v}-1\right)
 \end{align*}
 
 \subsection{Setting the beta hyper-parameters II}
-(Source: Draper). The code in \texttt{316-beta-cdf.py} finds $\alpha_1 = 4.506$, $\alpha_2 = 25.534$, corresponding to an equivalent sample size of $\alpha_1+\alpha_2 \approx 30$.
+\textit{(Source: Draper). Suppose $\theta\sim\beta(\alpha_1,\alpha_2)$ and we believe that $\mathbb{E}[\theta]=m$ and $p(l<\theta<u)=0.95$. Write a program that can solve for $\alpha_1$ and $\alpha_2$ in terms of $m$, $l$ and $u$. What values do you get if $m=0.15$, $l=0.05$ and $u=0.3$? What is the equivalent sample size of this prior?}
+
+The code in \texttt{316-beta-cdf.py} finds $\alpha_1 = 4.506$, $\alpha_2 = 25.534$, corresponding to an equivalent sample size of $\alpha_1+\alpha_2 \approx 30$.
 
 \subsection{Marginal likelihood for beta-binomial under uniform prior}
+\textit{Suppose we toss a coin $N$ times and observe $N_1$ heads. Let $N_1\sim\text{Bin}(N,\theta)$ and $\theta\sim\text{Beta}(1,1)$. Show that the marginal likelihood is $p(N_1|N)=1/(N+1)$.}
+
 \begin{align*}
 p(N_1|N) &= \int_{\mathbb{R}} p(N_1|N,\theta)p(\theta) \,d\theta\\
 &= {N \choose N_1} \int_0^1 \theta^{N_1} (1-\theta)^{N-N_1} \,d\theta\\
 &= {N \choose N_1} \left(\frac{N-N_1}{N_1+1}\right) \int_0^1 \theta^{N_1+1} (1-\theta)^{N-N_1-1} \,d\theta\\
 &= \,\,\dots\\
 &= {N \choose N_1} \left(\frac{N_1!(N-N_1)!}{N!}\right) \int_0^1 \theta^N \,d\theta\\
-&= \frac{1}{N+1}
+&= \frac{1}{N+1}.
 \end{align*}
+Note: this is uniform across all possible $N_1$, irrespective of value.
 
 \subsection{Bayes factor for coin tossing}
+\textit{Suppose we toss a coin $N=10$ times and observe $N_1=9$ heads. Let the null hypothesis be that the coin is fair, and the alternative be that the coin can have any bias, so $p(\theta)=\text{Unif}(0,1)$. Derive the Bayes factor $BF_{1,0}$ in favour of the biased coin hypothesis. What if $N=100$ and $N_1=90$?}
 \begin{align*}
 BF_{1,0} &= \frac{\int_{\mathbb{R}} p(N_1=9|N=10,\theta)p(\theta) \,d\theta}{p(N_1=9|N=10,\theta=0.5)}\\
 &= \frac{\frac{1}{10+1}}{{10 \choose 9} 0.5^{10}}\\
 &\approx 9.3
 \end{align*}
-If $N=100$ and $N_1=90$, we have
+If instead $N=100$ and $N_1=90$, we have
 \begin{align*}
 BF_{1,0} &= \frac{\frac{1}{100+1}}{{100 \choose 90} 0.5^{100}}\\
 &= \frac{90!10!(2^{100})}{101!}\\
 \log BF_{1,0} &= \sum_{i=1}^{10} \log i - \sum_{i=91}^{101} \log i + 100\log 2\\
 &\approx 34.2
 \end{align*}
-which represents a strong argument supporting the biased hypothesis.
+which represents a much stronger argument supporting the biased hypothesis.
 
 \subsection{Irrelevant features with naive Bayes}
-(Source: Jaakkola).\\\\
-a. Using Bayes (the proportionality terms cancel), we have
+\textit{(Source: Jaakkola). Let $x_{iw}=1$ if word $w$ occurs in document $i$ and $x_{iw}=0$ otherwise. Let $\theta_{cw}$ be the estimated probability that word $w$ occurs in documents of class $c$. Then the log-likelihood that document $\bm{x}_i$ belongs to class $c$ is}
+\begin{align*}
+\log p(\bm{x}_i|c,\theta) &= \log\prod_{w=1}^W \theta_{cw}^{x_{iw}}(1-\theta_{cw})^{1-x_{iw}}\\
+&= \sum_{w=1}^W x_{iw}\log\theta_{cw} + (1-x_{iw})\log(1-\theta_{cw})\\
+&= \sum_{w=1}^W x_{iw}\log\frac{\theta_{cw}}{1-\theta_{cw}} + \log(1-\theta_{cw})
+\end{align*}
+\textit{where $W$ is the number of words in the vocabulary. We can write this more succinctly as}
+\begin{align*}
+\log p(\bm{x}_i|c,\theta) &= \bm\phi(\bm{x}_i)^T\bm\beta_c
+\end{align*}
+\textit{where $\bm{x}_i = (x_{i1},\dots,x_{iW})$ is a bit vector, $\bm\phi(\bm{x}_i) = (\bm{x}_i, 1)$, and}
+\begin{align*}
+\bm\beta_c &= \left( \log\frac{\theta_{c1}}{1-\theta_{c1}}, \dots, \log\frac{\theta_{cW}}{1-\theta_{cW}}, \sum_{w=1}^W \log(1-\theta_{cw}) \right)^T.
+\end{align*}
+
+a. \textit{Assuming $p(c=1) = p(c=2) = 0.5$, write down an expression for the log posterior odds ratio, $\log_2\frac{p(c=1|\bm{x}_i)}{p(c=2|\bm{x}_i)}$, in terms of the features $\bm\phi(\bm{x}_i)$ and the parameters $\bm\beta_1$ and $\bm\beta_2$.}
+
+Using Bayes (the proportionality terms cancel), we have
 \begin{align*}
 \log_2\frac{p(c=1|\mathbf{x}_i)}{p(c=2|\mathbf{x}_i)} &= \log_2\frac{p(\mathbf{x}_i|c=1)p(c=1)}{p(\mathbf{x}_i|c=2)p(c=2)}\\
 &= \log_2\frac{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_2)}\\
-&= (\log_2e)\bm\phi(\mathbf{x}_i)^T(\bm\beta_1-\bm\beta_2)
+&= (\log_2e)\bm\phi(\mathbf{x}_i)^T(\bm\beta_1-\bm\beta_2).
 \end{align*}
-b. The posterior odds ratio for $\mathbf{\tilde{x}}_i$, where $\tilde{x}_{iw} = 1-x_{iw}$, is unchanged
+
+b. \textit{Intuitively, words that occur in both classes are not very ``discriminative'', and therefore should not affect our beliefs about the class label. Consider a particular word $w$. State the conditions on $\theta_{1,w}$ and $\theta_{2,w}$ (or equivalently on $\beta_{1,w}$, $\beta_{2,w}$) under which the presence or absence of $w$ in a test document will have no effect on the class posterior (such a word will be ignored by the classifier).}
+
+Define $\bm{x}_i$ and $\bm{\tilde{x}}_i$ such $\tilde{x}_{iw} = 1-x_{iw}$ for some $w$ but otherwise the elements are equal. The posterior odds ratio is unchanged
 \begin{alignat*}{2}
 \iff&& \frac{p(\mathbf{x}_i|c=1)}{p(\mathbf{x}_i|c=2)} &= \frac{p(\mathbf{\tilde{x}}_i|c=1)}{p(\mathbf{\tilde{x}}_i|c=2)}\\
 \iff&& \frac{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{x}_i)^T \bm\beta_2)} &= \frac{\exp(\bm\phi(\mathbf{\tilde{x}}_i)^T \bm\beta_1)}{\exp(\bm\phi(\mathbf{\tilde{x}}_i)^T \bm\beta_2)}\\
@@ -179,29 +316,61 @@ b. The posterior odds ratio for $\mathbf{\tilde{x}}_i$, where $\tilde{x}_{iw} = 
 \iff&& \beta_{1,w} &= \beta_{2,w}\\
 \iff&& \theta_{1,w} &= \theta_{2,w}
 \end{alignat*}
-c. Word $w$ is ignored
+
+c. \textit{The posterior mean estimate of $\theta$, using a $\text{Beta}(1,1)$ prior, is given by}
+\begin{align*}
+\hat\theta_{cw} &= \frac{1+\sum_{i\in c}x_{iw}}{2+n_c}
+\end{align*}
+\textit{where the sum is over the $n_c$ documents in class $c$. Consider a particular word $w$, and suppose it always occurs in every documents (regardless of class). Let there be $n_1$ documents of class 1 nd $n_2$ of class 2, where $n_1\neq n_2$ (this is an example of class imbalance). If we use the above estimate for $\theta_{cw}$, will word $w$ be ignored by our classifier?}
+
+Word $w$ is ignored
 \begin{alignat*}{2}
 \iff&& \hat\theta_{1,w} &= \hat\theta_{2,w}\\
 \iff&& \frac{1+n_1}{2+n_1} &= \frac{1+n_2}{2+n_2}\\
 \iff&& n_1 &= n_2
 \end{alignat*}
-but this is not the case.\\\\
-d. For large $n_1$ and $n_2$, both posterior mean estimates tend to $\frac{1}{2}$ in the case above and $\frac{1}{n_c}\sum_{i\in c}x_{iw}$ in the general case. Thus the intended cancelling out of $\theta$ and $\beta$ values for irrelevant words will work. We could also do separate processing of the data to pick out irrelevant words using a different mechanism.
+but this is not the case.
+
+d. \textit{What other ways can you think of which encourage ``irrelevant'' words to be ignored?}
+
+For large $n_1$ and $n_2$, both posterior mean estimates tend to $\frac{1}{2}$ in the case above and $\frac{1}{n_c}\sum_{i\in c}x_{iw}$ in the general case. Thus the intended cancelling out of $\theta$ and $\beta$ values for irrelevant words will work. We could also do separate processing of the data to pick out irrelevant words using a different mechanism.
 
 \subsection{Class conditional densities for binary data}
-a. The full model must cover all $\mathbf{x} \in \{0,1\}^D$ without any assumptions, which will require $C(2^D-1)$ parameters: one for each outcome for each class.\\\\
-b,c. Since there are many more parameters in the full model, it will take longer (greater N) to achieve better accuracy, while the naive Bayes approximation will reach a decent result more quickly.\\\\
-d. For Na\"ive Bayes, we find the parameters by scaling counts for each feature (and for each class, but here we assume constant $C$), which has $O(ND)$ complexity. For the full model, we instead have counts for each outcome (for each class). Since we can convert each $D$-bit training data point into its `outcome index' in $O(D)$, this also comes out to an $O(ND)$ complexity.\\\\
-e. For Na\"ive Bayes, we have to find $D$ Bernoulli factors for each test case (for each class). For the full model, we only have to perform one value lookup (for each class), but this involves conversion between $D$-bit vectors and indices. The associated computational complexities depend on how the parameters are stored. Assuming no optimisations, both are $O(D)$.\\\\
-f. For Na\"ive Bayes, we can simply ignore the hidden features since the classification is relative and the features are conditionally independent. Thus we only need to find $v$ Bernoulli parameters: $O(v)$. For the full model, we need to marginalise over the hidden parameters. Assuming no optimisations, this would involve converting $2^h$ potential $D$-bit data vectors into indices in order to find their associated parameters: $O(2^h(v+h))$.
+\textit{Consider a generative classifier for $C$ classes with class conditional density $p(\bm{x}|y)$ and uniform class prior $p(y)$. Suppose all the $D$ features are binary, $x_j\in\{0,1\}$. If we assume all the features are conditionally independent (the naive Bayes assumption), we can write}
+\begin{align*}
+p(\bm{x}|y=c) &= \prod_{j=1}^D \text{Ber}(x_j|\theta_{jc})
+\end{align*}
+which requires $DC$ parameters.
+
+a. \textit{Now consider the ``full'' model, in which all the features are fully dependent (i.e. we make no factorisation assumptions). How might we represent $p(\bm{x}|y=c)$ in this case? How many parameters are needed to represent $p(\bm{x}|y=c)$?}
+
+The full model must cover all $\mathbf{x} \in \{0,1\}^D$ (except one, due to probabilities summing to $1$) across $C$ classes, which will require $C(2^D-1)$ parameters.
+
+b. \textit{Assume the number of features $D$ is fixed. Let there be $N$ training cases. If the sample size $N$ is very small, which model (naive Bayes or full) is likely to give lower test set error, and why?}
+
+c. \textit{If the sample size $N$ is very large, which model (naive Bayes or full) is likely to give lower test set error, and why?}
+
+Since there are many more parameters in the full model, it will take longer (greater N) to achieve better accuracy, while the naive Bayes approximation will achieve decent performance with smaller $N$.
+
+d. \textit{What is the computational complexity of fitting the full and naive Bayes models as a function of $N$ and $D$? Use big-Oh notation. (Fitting a model here means computing the MLE or MAP parameter estimates. You may assume you can convert a $D$-bit vector to an array index in $O(D)$ time.)}
+
+For Na\"ive Bayes, we find the parameters by scaling counts for each feature (and for each class, but here we assume constant $C$), which has $O(ND)$ complexity. For the full model, we instead have counts for each outcome (for each class). Since we can convert each $D$-bit training data point into its `outcome index' in $O(D)$ time, this also comes out to an $O(ND)$ complexity.
+
+e. \textit{What is the computational complexity of applying the full and naive Bayes models at test time to a single test case?}
+
+For Na\"ive Bayes, we have to find $D$ Bernoulli factors for each test case (for each class, but we continue the assumption that $C$ is constant). For the full model, we only have to perform one value lookup (for each class), but this involves conversion between $D$-bit vectors and indices. The associated computational complexities depend on how the parameters are stored. Assuming no optimisations, both are $O(D)$.
+
+f. \textit{Suppose the test case has missing data. Let $\bm{x}_v$ be the visible features of size $v$, and $\bm{x}_h$ be the hidden (missing) features of size $h$, where $v+h=D$. What is the computational complexity of computing $p(y|\bm{x}_v,\hat{\bm\theta})$ for the full and naive Bayes models, as a function of $v$ and $h$?}
+
+For Na\"ive Bayes, we can simply ignore the hidden features since the classification is relative and the features are conditionally independent. Thus we only need to find $v$ Bernoulli parameters: $O(v)$. For the full model, we need to marginalise over the hidden parameters. Assuming no optimisations, this would involve converting $2^h$ potential $D$-bit data vectors into indices in order to find their associated parameters: $O(2^h(v+h))$.
 
 \subsection{Mutual information for naive Bayes classifiers with binary features}
 \begin{align*}
 I(X,Y) &= \sum_{x_j} \sum_y p(x_j,y) \log\frac{p(x_j,y)}{p(x_j)p(y)}\\
 &= \sum_{i=0,1} \sum_c p(x_j=i,y=c) \log\frac{p(x_j=i,y=c)}{p(x_j=i)p(y=c)}\\
-&= \sum_{i=0,1} \sum_c p(x_j=i|y=c)p(y=c) \log\frac{p(x_j=i|y=c)}{p(x_j=i)}\\
+&= \sum_c \sum_{i=0,1} p(x_j=i|y=c)p(y=c) \log\frac{p(x_j=i|y=c)}{p(x_j=i)}\\
 &= \sum_c (1-\theta_{jc}) \pi_c \log\frac{1-\theta_{jc}}{1-\theta_j} + \theta_{jc} \pi_c \log\frac{\theta_{jc}}{\theta_j}
 \end{align*}
 
 \subsection{Fitting a naive Bayes spam filter by hand}
-(Source: Daphne Koller). $\hat\theta_{spam} = 3/7,\, \hat\theta_{secret|spam} = 2/3,\, \hat\theta_{secret|non-spam} = 1/4,\, \hat\theta_{sports|non-spam} = 1/2,\, \hat\theta_{dollar|spam} = 1/3.$
+$\hat\theta_{spam} = 3/7$, $\hat\theta_{secret|spam} = 2/3$, $\hat\theta_{secret|non-spam} = 1/4$, $\hat\theta_{sports|non-spam} = 2/4 = 1/2$, $\hat\theta_{dollar|spam} = 1/3$.
